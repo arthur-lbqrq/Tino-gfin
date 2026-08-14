@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  categories             Category[]
+  transactions           Transaction[]
+  accounts               Account[]
+  recurringTransactions  RecurringTransaction[]
+  budgets                Budget[]
+
+  @@map("users")
+}
+
+enum TransactionType {
+  RECEITA
+  DESPESA
+}
+
+// Categoria "padrão" tem userId nulo e fica visível pra todo mundo.
+// Categoria criada/editada por um usuário tem userId preenchido e só ele vê.
+model Category {
+  id        String           @id @default(uuid())
+  name      String
+  type      TransactionType
+  isDefault Boolean          @default(false)
+  userId    String?
+  user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+
+  transactions            Transaction[]
+  recurringTransactions   RecurringTransaction[]
+  budgets                 Budget[]
+
+  @@unique([userId, name, type])
+  @@map("categories")
+}
+
+enum AccountType {
+  CORRENTE
+  CARTEIRA
+  CARTAO_CREDITO
+  POUPANCA
+}
+
+// Conta ou carteira do usuário. Toda transação (exceto legado antigo)
+// deve pertencer a uma account, pra dar saldo por conta e permitir
+// separar "dinheiro físico" de "conta corrente" de "cartão de crédito".
+model Account {
+  id             String      @id @default(uuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  type           AccountType
+  initialBalance Decimal     @default(0) @db.Decimal(12, 2)
+
+  // Só usados quando type = CARTAO_CREDITO
+  creditLimit    Decimal?    @db.Decimal(12, 2)
+  closingDay     Int?        // dia de fechamento da fatura (1-31)
+  dueDay         Int?        // dia de vencimento da fatura (1-31)
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  transactions   Transaction[]
+  invoices       Invoice[]
+
+  @@map("accounts")
+}
+
+// Fatura de cartão de crédito. Agrupa as transações de um período
+// pra separar "quando a despesa aconteceu" de "quando ela pesa no caixa".
+model Invoice {
+  id             String   @id @default(uuid())
+  accountId      String
+  account        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  referenceMonth String   // formato "2026-08"
+  closingDate    DateTime
+  dueDate        DateTime
+  paid           Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  transactions   Transaction[]
+
+  @@unique([accountId, referenceMonth])
+  @@map("invoices")
+}
+
+// Modelo (template) de uma transação recorrente. O gerador (job/cron)
+// cria Transaction reais a partir daqui, marcando recurringId.
+model RecurringTransaction {
+  id              String            @id @default(uuid())
+  userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId       String
+  account         Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  categoryId      String
+  category        Category          @relation(fields: [categoryId], references: [id])
+  description     String
+  amount          Decimal           @db.Decimal(12, 2)
+  type            TransactionType
+  frequency       RecurrenceFrequency
+  startDate       DateTime
+  endDate         DateTime?         // null = sem data de término
+  lastGeneratedAt DateTime?
+  active          Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+
+  generatedTransactions Transaction[]
+
+  @@map("recurring_transactions")
+}
+
+enum RecurrenceFrequency {
+  DIARIA
+  SEMANAL
+  MENSAL
+  ANUAL
+}
+
+// Orçamento por categoria e mês. Alimenta tanto uma tela de "planejado x realizado"
+// quanto o motor de insights (ex: "você já usou 90% do orçamento de Alimentação").
+model Budget {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId     String
+  category       Category @relation(fields: [categoryId], references: [id])
+  amount         Decimal  @db.Decimal(12, 2)
+  referenceMonth String   // formato "2026-08"
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, categoryId, referenceMonth])
+  @@map("budgets")
+}
+
+model Transaction {
+  id          String           @id @default(uuid())
+  type        TransactionType
+  amount      Decimal          @db.Decimal(12, 2)
+  description String?
+  date        DateTime
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  // Nullable por enquanto pra permitir migração gradual dos dados existentes
+  // (que não têm account). Depois de migrar, considerar tornar obrigatório.
+  accountId  String?
+  account    Account? @relation(fields: [accountId], references: [id])
+
+  // Preenchido só se a despesa for de cartão de crédito
+  invoiceId  String?
+  invoice    Invoice? @relation(fields: [invoiceId], references: [id])
+
+  // Preenchido se essa transação foi gerada por uma recorrência
+  recurringId String?
+  recurring   RecurringTransaction? @relation(fields: [recurringId], references: [id])
+
+  // Transferência entre contas: duas transações linkadas pelo mesmo par,
+  // uma DESPESA na origem e uma RECEITA no destino, marcadas isTransfer = true
+  // pra não contarem como receita/despesa "de verdade" nos relatórios.
+  isTransfer     Boolean @default(false)
+  transferPairId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, date])
+  @@index([accountId, date])
+  @@map("transactions")
+}

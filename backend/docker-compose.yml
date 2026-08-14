@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tino-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tino
+      POSTGRES_PASSWORD: tino_dev_password
+      POSTGRES_DB: tino_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - tino_pg_data:/var/lib/postgresql/data
+
+volumes:
+  tino_pg_data:

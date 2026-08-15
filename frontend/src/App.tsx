@@ -6,6 +6,8 @@ import { Login } from "@/pages/Login";
 import { Register } from "@/pages/Register";
 import { Dashboard } from "@/pages/Dashboard";
 import { Transactions } from "@/pages/Transactions";
+import { Accounts } from "@/pages/Accounts";
+import { CardInvoices } from "@/pages/CardInvoices";
 
 export function App() {
   return (
@@ -19,6 +21,8 @@ export function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/transactions" element={<Transactions />} />
+            <Route path="/accounts" element={<Accounts />} />
+            <Route path="/accounts/:accountId/invoices" element={<CardInvoices />} />
           </Route>
         </Routes>
       </AuthProvider>

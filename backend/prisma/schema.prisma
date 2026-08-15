@@ -76,6 +76,7 @@ model Account {
 
   transactions   Transaction[]
   invoices       Invoice[]
+  recurringTransactions RecurringTransaction[]
 
   @@map("accounts")
 }
@@ -177,10 +178,18 @@ model Transaction {
   isTransfer     Boolean @default(false)
   transferPairId String?
 
+  // Parcelamento de compra no cartão: todas as parcelas de uma mesma compra
+  // compartilham installmentGroupId. Cada parcela é uma Transaction própria,
+  // com a data da compra original mas ligada à fatura (invoiceId) do mês correspondente.
+  installmentGroupId String?
+  installmentNumber  Int?
+  installmentTotal   Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId, date])
   @@index([accountId, date])
+  @@index([installmentGroupId])
   @@map("transactions")
 }

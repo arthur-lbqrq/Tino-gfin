@@ -1,7 +1,15 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { z } from "zod";
-import { recurringTransactionsService } from "./recurring-transactions.service";
-import { RecurringTransactionError } from "./recurring-transactions.errors";
+import { AuthenticatedRequest } from "@/auth/auth.middleware";
+import {
+  createRecurringTransaction,
+  listRecurringTransactions,
+  findOwnedRecurringTransaction,
+  updateRecurringTransaction,
+  deleteRecurringTransaction,
+  generatePendingRecurringTransactions,
+  RecurringTransactionError,
+} from "./recurring-transactions.service";
 
 const transactionTypeEnum = z.enum(["RECEITA", "DESPESA"]);
 const frequencyEnum = z.enum(["DIARIA", "SEMANAL", "MENSAL", "ANUAL"]);
@@ -25,76 +33,73 @@ const updateRecurringSchema = z.object({
   active: z.boolean().optional(),
 });
 
-function handleError(res: Response, error: unknown) {
+function handleError(error: unknown, res: Response) {
   if (error instanceof RecurringTransactionError) {
-    return res.status(error.statusCode).json({ error: error.message });
+    return res.status(error.statusCode).json({ message: error.message });
   }
   console.error(error);
-  return res.status(500).json({ error: "Erro interno do servidor." });
+  return res.status(500).json({ message: "Erro interno." });
 }
 
-export const recurringTransactionsController = {
-  async create(req: Request, res: Response) {
-    try {
-      const data = createRecurringSchema.parse(req.body);
-      const recurring = await recurringTransactionsService.create({ userId: req.userId!, ...data });
-      return res.status(201).json(recurring);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.issues });
-      }
-      return handleError(res, error);
-    }
-  },
+export async function index(req: AuthenticatedRequest, res: Response) {
+  const recurrences = await listRecurringTransactions(req.userId!);
+  return res.json(recurrences);
+}
 
-  async list(req: Request, res: Response) {
-    try {
-      const recurrences = await recurringTransactionsService.listByUser(req.userId!);
-      return res.json(recurrences);
-    } catch (error) {
-      return handleError(res, error);
-    }
-  },
+export async function create(req: AuthenticatedRequest, res: Response) {
+  const parsed = createRecurringSchema.safeParse(req.body);
 
-  async getOne(req: Request, res: Response) {
-    try {
-      const recurring = await recurringTransactionsService.getById(req.userId!, req.params.id);
-      return res.json(recurring);
-    } catch (error) {
-      return handleError(res, error);
-    }
-  },
+  if (!parsed.success) {
+    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
+  }
 
-  async update(req: Request, res: Response) {
-    try {
-      const data = updateRecurringSchema.parse(req.body);
-      const recurring = await recurringTransactionsService.update(req.userId!, req.params.id, data);
-      return res.json(recurring);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.issues });
-      }
-      return handleError(res, error);
-    }
-  },
+  try {
+    const recurring = await createRecurringTransaction({ userId: req.userId!, ...parsed.data });
+    return res.status(201).json(recurring);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
 
-  async remove(req: Request, res: Response) {
-    try {
-      await recurringTransactionsService.delete(req.userId!, req.params.id);
-      return res.status(204).send();
-    } catch (error) {
-      return handleError(res, error);
-    }
-  },
+export async function show(req: AuthenticatedRequest, res: Response) {
+  try {
+    const recurring = await findOwnedRecurringTransaction(req.userId!, req.params.id);
+    return res.json(recurring);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
 
-  // Endpoint manual pro MVP: gera as transações pendentes até hoje.
-  // No futuro isso vira um job de cron e deixa de precisar ser chamado daqui.
-  async generatePending(req: Request, res: Response) {
-    try {
-      const created = await recurringTransactionsService.generatePending(req.userId!);
-      return res.status(201).json({ generated: created.length, transactions: created });
-    } catch (error) {
-      return handleError(res, error);
-    }
-  },
-};
+export async function update(req: AuthenticatedRequest, res: Response) {
+  const parsed = updateRecurringSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
+  }
+
+  try {
+    const recurring = await updateRecurringTransaction(req.userId!, req.params.id, parsed.data);
+    return res.json(recurring);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+export async function remove(req: AuthenticatedRequest, res: Response) {
+  try {
+    await deleteRecurringTransaction(req.userId!, req.params.id);
+    return res.status(204).send();
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+// Endpoint manual pro MVP: gera as transações pendentes até hoje.
+export async function generatePending(req: AuthenticatedRequest, res: Response) {
+  try {
+    const created = await generatePendingRecurringTransactions(req.userId!);
+    return res.status(201).json({ generated: created.length, transactions: created });
+  } catch (error) {
+    return handleError(error, res);
+  }
+}

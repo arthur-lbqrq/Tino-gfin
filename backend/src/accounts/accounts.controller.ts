@@ -1,11 +1,19 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { z } from "zod";
-import { accountsService } from "./accounts.service";
-import { AccountError } from "./accounts.errors";
+import { AuthenticatedRequest } from "@/auth/auth.middleware";
+import {
+  listAccounts,
+  createAccount,
+  findOwnedAccount,
+  updateAccount,
+  deleteAccount,
+  getAccountBalance,
+  AccountError,
+} from "./accounts.service";
 
 const accountTypeEnum = z.enum(["CORRENTE", "CARTEIRA", "CARTAO_CREDITO", "POUPANCA"]);
 
-const createAccountSchema = z.object({
+const accountSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   type: accountTypeEnum,
   initialBalance: z.number().default(0),
@@ -14,76 +22,74 @@ const createAccountSchema = z.object({
   dueDay: z.number().int().min(1).max(31).optional(),
 });
 
-const updateAccountSchema = createAccountSchema.partial().omit({ type: true });
+const updateAccountSchema = accountSchema.partial().omit({ type: true });
 
-function handleError(res: Response, error: unknown) {
+function handleError(error: unknown, res: Response) {
   if (error instanceof AccountError) {
-    return res.status(error.statusCode).json({ error: error.message });
+    return res.status(error.statusCode).json({ message: error.message });
   }
   console.error(error);
-  return res.status(500).json({ error: "Erro interno do servidor." });
+  return res.status(500).json({ message: "Erro interno." });
 }
 
-export const accountsController = {
-  async create(req: Request, res: Response) {
-    try {
-      const data = createAccountSchema.parse(req.body);
-      const account = await accountsService.create({ userId: req.userId!, ...data });
-      return res.status(201).json(account);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.issues });
-      }
-      return handleError(res, error);
-    }
-  },
+export async function index(req: AuthenticatedRequest, res: Response) {
+  const accounts = await listAccounts(req.userId!);
+  return res.json(accounts);
+}
 
-  async list(req: Request, res: Response) {
-    try {
-      const accounts = await accountsService.listByUser(req.userId!);
-      return res.json(accounts);
-    } catch (error) {
-      return handleError(res, error);
-    }
-  },
+export async function create(req: AuthenticatedRequest, res: Response) {
+  const parsed = accountSchema.safeParse(req.body);
 
-  async getOne(req: Request, res: Response) {
-    try {
-      const account = await accountsService.getById(req.userId!, req.params.id);
-      return res.json(account);
-    } catch (error) {
-      return handleError(res, error);
-    }
-  },
+  if (!parsed.success) {
+    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
+  }
 
-  async update(req: Request, res: Response) {
-    try {
-      const data = updateAccountSchema.parse(req.body);
-      const account = await accountsService.update(req.userId!, req.params.id, data);
-      return res.json(account);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.issues });
-      }
-      return handleError(res, error);
-    }
-  },
+  try {
+    const account = await createAccount({ userId: req.userId!, ...parsed.data });
+    return res.status(201).json(account);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
 
-  async remove(req: Request, res: Response) {
-    try {
-      await accountsService.delete(req.userId!, req.params.id);
-      return res.status(204).send();
-    } catch (error) {
-      return handleError(res, error);
-    }
-  },
+export async function show(req: AuthenticatedRequest, res: Response) {
+  try {
+    const account = await findOwnedAccount(req.userId!, req.params.id);
+    return res.json(account);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
 
-  async getBalance(req: Request, res: Response) {
-    try {
-      const balance = await accountsService.getBalance(req.userId!, req.params.id);
-      return res.json(balance);
-    } catch (error) {
-      return handleError(res, error);
-    }
-  },
-};
+export async function update(req: AuthenticatedRequest, res: Response) {
+  const parsed = updateAccountSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
+  }
+
+  try {
+    const account = await updateAccount(req.userId!, req.params.id, parsed.data);
+    return res.json(account);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+export async function remove(req: AuthenticatedRequest, res: Response) {
+  try {
+    await deleteAccount(req.userId!, req.params.id);
+    return res.status(204).send();
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+export async function balance(req: AuthenticatedRequest, res: Response) {
+  try {
+    const data = await getAccountBalance(req.userId!, req.params.id);
+    return res.json(data);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}

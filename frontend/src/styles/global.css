@@ -507,3 +507,78 @@ button {
   margin: 8px 0 24px;
   opacity: 0.5;
 }
+
+/* ===== Cartão de crédito: limite e faturas ===== */
+
+.limit-bar-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.limit-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.limit-bar-fill.warning {
+  background: var(--signal-amber);
+}
+
+.limit-bar-fill.critical {
+  background: var(--signal-red);
+}
+
+.invoice-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.invoice-tab {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  cursor: pointer;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+.invoice-tab.active {
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary);
+}
+
+.invoice-tab .status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--signal-mint-soft);
+  color: var(--signal-mint);
+}
+
+.invoice-tab .status.open {
+  background: var(--signal-amber-soft);
+  color: var(--signal-amber);
+}
+
+.installment-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-left: 8px;
+}

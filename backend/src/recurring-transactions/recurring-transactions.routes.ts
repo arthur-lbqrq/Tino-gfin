@@ -1,16 +1,13 @@
 import { Router } from "express";
-import { recurringTransactionsController } from "./recurring-transactions.controller";
 import { authMiddleware } from "@/auth/auth.middleware";
+import { index, create, show, update, remove, generatePending } from "./recurring-transactions.controller";
 
-const router = Router();
+export const recurringTransactionsRoutes = Router();
 
-router.use(authMiddleware);
-
-router.post("/", recurringTransactionsController.create);
-router.get("/", recurringTransactionsController.list);
-router.get("/:id", recurringTransactionsController.getOne);
-router.put("/:id", recurringTransactionsController.update);
-router.delete("/:id", recurringTransactionsController.remove);
-router.post("/generate", recurringTransactionsController.generatePending);
-
-export const recurringTransactionsRoutes = router;
+recurringTransactionsRoutes.use(authMiddleware);
+recurringTransactionsRoutes.get("/", index);
+recurringTransactionsRoutes.post("/", create);
+recurringTransactionsRoutes.get("/:id", show);
+recurringTransactionsRoutes.put("/:id", update);
+recurringTransactionsRoutes.delete("/:id", remove);
+recurringTransactionsRoutes.post("/generate", generatePending);

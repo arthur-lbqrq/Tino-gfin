@@ -3,9 +3,11 @@ import { z } from "zod";
 import { AuthenticatedRequest } from "@/auth/auth.middleware";
 import {
   createTransaction,
+  createInstallmentPurchase,
   listTransactions,
   updateTransaction,
   deleteTransaction,
+  deleteInstallmentGroup,
   TransactionError,
 } from "./transaction.service";
 
@@ -15,9 +17,11 @@ const transactionSchema = z.object({
   amount: z.number().positive("Valor deve ser maior que zero"),
   description: z.string().optional(),
   date: z.coerce.date(),
+  accountId: z.string().uuid().optional(),
+  installments: z.number().int().min(1).max(48).optional(),
 });
 
-const updateTransactionSchema = transactionSchema.partial();
+const updateTransactionSchema = transactionSchema.omit({ installments: true }).partial();
 
 const listQuerySchema = z.object({
   type: z.enum(["RECEITA", "DESPESA"]).optional(),
@@ -53,7 +57,18 @@ export async function create(req: AuthenticatedRequest, res: Response) {
   }
 
   try {
-    const transaction = await createTransaction({ userId: req.userId!, ...parsed.data });
+    const { installments, ...data } = parsed.data;
+
+    if (installments && installments > 1) {
+      const transactions = await createInstallmentPurchase({
+        userId: req.userId!,
+        ...data,
+        installments,
+      });
+      return res.status(201).json({ installments: transactions });
+    }
+
+    const transaction = await createTransaction({ userId: req.userId!, ...data });
     return res.status(201).json(transaction);
   } catch (error) {
     return handleError(error, res);
@@ -78,6 +93,15 @@ export async function update(req: AuthenticatedRequest, res: Response) {
 export async function remove(req: AuthenticatedRequest, res: Response) {
   try {
     await deleteTransaction(req.userId!, req.params.id);
+    return res.status(204).send();
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+export async function removeInstallmentGroup(req: AuthenticatedRequest, res: Response) {
+  try {
+    await deleteInstallmentGroup(req.userId!, req.params.groupId);
     return res.status(204).send();
   } catch (error) {
     return handleError(error, res);

@@ -1,16 +1,21 @@
 import { Router } from "express";
-import { accountsController } from "./accounts.controller";
 import { authMiddleware } from "@/auth/auth.middleware";
+import { index, create, show, update, remove, balance } from "./accounts.controller";
+import { index as invoicesIndex, show as invoiceShow, pay as invoicePay, creditLimit } from "@/invoices/invoice.controller";
 
-const router = Router();
+export const accountsRoutes = Router();
 
-router.use(authMiddleware);
+accountsRoutes.use(authMiddleware);
 
-router.post("/", accountsController.create);
-router.get("/", accountsController.list);
-router.get("/:id", accountsController.getOne);
-router.get("/:id/balance", accountsController.getBalance);
-router.put("/:id", accountsController.update);
-router.delete("/:id", accountsController.remove);
+accountsRoutes.get("/", index);
+accountsRoutes.post("/", create);
+accountsRoutes.get("/:id", show);
+accountsRoutes.put("/:id", update);
+accountsRoutes.delete("/:id", remove);
+accountsRoutes.get("/:id/balance", balance);
 
-export const accountsRoutes = router;
+// Sub-recursos de fatura, só fazem sentido pra contas do tipo cartão de crédito
+accountsRoutes.get("/:accountId/invoices", invoicesIndex);
+accountsRoutes.get("/:accountId/invoices/:invoiceId", invoiceShow);
+accountsRoutes.patch("/:accountId/invoices/:invoiceId/pay", invoicePay);
+accountsRoutes.get("/:accountId/credit-limit", creditLimit);

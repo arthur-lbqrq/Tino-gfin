@@ -19,6 +19,12 @@ export function Layout() {
           >
             Transações
           </NavLink>
+          <NavLink
+            to="/accounts"
+            className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}
+          >
+            Contas
+          </NavLink>
         </nav>
 
         <div className="sidebar-footer">

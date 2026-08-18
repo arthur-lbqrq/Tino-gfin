@@ -99,7 +99,7 @@ export function Planos() {
           return (
             <div key={tier.plan} className="card" style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <h3 style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 600 }}>{tier.name}</h3>
+                <h3 style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 400, letterSpacing: "0.01em" }}>{tier.name}</h3>
                 {isCurrent && (
                   <span
                     style={{

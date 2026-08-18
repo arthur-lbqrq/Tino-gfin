@@ -42,7 +42,7 @@ export function MeiGauge({ status }: { status: MeiStatus }) {
             textAlign: "center",
             fontFamily: "var(--font-display)",
             fontSize: 28,
-            fontWeight: 600,
+            fontWeight: 400,
             color,
           }}
         >

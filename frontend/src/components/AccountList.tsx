@@ -29,7 +29,7 @@ export function AccountList({ accounts, onDelete }: AccountListProps) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <div className="label">{ACCOUNT_TYPE_LABELS[account.type]}</div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600, marginTop: 4 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 400, letterSpacing: "0.01em", marginTop: 4 }}>
                   {account.name}
                 </div>
               </div>

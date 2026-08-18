@@ -22,7 +22,7 @@ export function BudgetList({ budgets, onDelete }: BudgetListProps) {
         return (
           <div key={budget.budgetId} className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 400, letterSpacing: "0.01em" }}>
                 {budget.categoryName}
               </div>
               <button

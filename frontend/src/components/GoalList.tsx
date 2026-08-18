@@ -27,7 +27,7 @@ export function GoalList({ goals, onDelete }: GoalListProps) {
         return (
           <div key={goal.id} className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 600 }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 400, letterSpacing: "0.01em" }}>
                 {goal.name}
               </div>
               <button className="delete-btn" onClick={() => onDelete(goal.id)} aria-label="Excluir meta">

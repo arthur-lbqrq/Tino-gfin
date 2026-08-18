@@ -215,7 +215,7 @@ export function Landing() {
             </div>
             <div className="card landing-seg-item">
               <div className="landing-seg-tag mono">Controle</div>
-              <p>Exporte ou exclua seus dados quando quiser, sem pedir permissão.</p>
+              <p>Exclua sua conta e todos os seus dados quando quiser, sem pedir permissão a ninguém.</p>
             </div>
           </div>
         </div>
@@ -234,13 +234,14 @@ export function Landing() {
               <div className="card landing-plano-card">
                 <div className="landing-plano-nome">Free</div>
                 <div className="landing-plano-preco mono">R$0</div>
-                <div className="landing-plano-desc">Pra organizar o financeiro do zero.</div>
+                <div className="landing-plano-desc">Pra sentir o motor de insights funcionando.</div>
                 <ul className="landing-plano-feats">
+                  <li>1 conta</li>
                   <li>Transações ilimitadas</li>
-                  <li>Categorias personalizadas</li>
                   <li>Painel de saldo e resultado</li>
-                  <li className="off">Alertas inteligentes</li>
-                  <li className="off">Múltiplas contas e cartão</li>
+                  <li>2 alertas inteligentes básicos</li>
+                  <li className="off">Orçamento, metas e recorrências</li>
+                  <li className="off">Importação de extrato e MEI</li>
                 </ul>
                 <Link to="/register" className="landing-plano-btn">
                   Começar grátis
@@ -250,33 +251,36 @@ export function Landing() {
                 <span className="landing-plano-badge">Mais popular</span>
                 <div className="landing-plano-nome">Pro</div>
                 <div className="landing-plano-preco mono">
-                  em breve <span>/ mês</span>
+                  R$29,90 <span>/ mês</span>
                 </div>
                 <div className="landing-plano-desc">Pra quem quer antecipar, não só registrar.</div>
                 <ul className="landing-plano-feats">
                   <li>Tudo do Free</li>
-                  <li>Alertas inteligentes ilimitados</li>
-                  <li>Contas, cartão e recorrências</li>
-                  <li>Orçamento por categoria</li>
+                  <li>Contas ilimitadas</li>
+                  <li>Todos os alertas inteligentes</li>
+                  <li>Orçamento, metas e recorrências</li>
+                  <li>Importação de extrato com conciliação</li>
+                  <li>Módulo fiscal MEI</li>
+                  <li>Alerta crítico por e-mail</li>
                 </ul>
-                <a href="#cta-final" className="landing-plano-btn landing-plano-btn-primary">
-                  Entrar na lista de espera
-                </a>
+                <Link to="/register" className="landing-plano-btn landing-plano-btn-primary">
+                  Começar grátis
+                </Link>
               </div>
               <div className="card landing-plano-card">
                 <div className="landing-plano-nome">Business</div>
                 <div className="landing-plano-preco mono">
-                  em breve <span>/ mês</span>
+                  R$69,90 <span>/ mês</span>
                 </div>
-                <div className="landing-plano-desc">Pra negócio com mais de uma frente.</div>
+                <div className="landing-plano-desc">Pra fechar a conta certo com o seu contador.</div>
                 <ul className="landing-plano-feats">
                   <li>Tudo do Pro</li>
-                  <li>Múltiplas empresas</li>
-                  <li>Limites ampliados</li>
+                  <li>DRE simplificado e comparativo de períodos</li>
+                  <li>Exportação de relatórios (PDF, Excel e CSV)</li>
                 </ul>
-                <a href="#cta-final" className="landing-plano-btn">
-                  Entrar na lista de espera
-                </a>
+                <Link to="/register" className="landing-plano-btn">
+                  Começar grátis
+                </Link>
               </div>
             </div>
           </div>
@@ -299,6 +303,10 @@ export function Landing() {
       <footer className="landing-footer">
         <div className="wrap landing-footer-row">
           <div className="landing-logo">Tino</div>
+          <div style={{ display: "flex", gap: 16 }}>
+            <Link to="/privacidade">Privacidade</Link>
+            <Link to="/termos">Termos de uso</Link>
+          </div>
           <div className="mono">© 2026 Tino. Gestão financeira para pequenos negócios.</div>
         </div>
       </footer>

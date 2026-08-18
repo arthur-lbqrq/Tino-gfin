@@ -26,7 +26,7 @@ export async function assertCardAccount(userId: string, accountId: string): Prom
 // Regra: se a compra acontece depois do dia de fechamento, ela já entra na fatura
 // do mês seguinte. O vencimento cai no mesmo mês do fechamento se dueDay > closingDay,
 // senão no mês seguinte (ex: fecha dia 28, vence dia 5 do mês seguinte).
-function computeInvoicePeriod(
+export function computeInvoicePeriod(
   account: Pick<Account, "closingDay" | "dueDay">,
   purchaseDate: Date,
   monthsAhead: number

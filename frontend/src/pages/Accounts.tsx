@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import { Account } from "@/lib/types";
 import { AccountForm } from "@/components/AccountForm";
 import { AccountList } from "@/components/AccountList";
+import { PageLoader } from "@/components/PageLoader";
 
 export function Accounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -25,7 +26,7 @@ export function Accounts() {
   }
 
   if (loading) {
-    return <p style={{ color: "var(--ink-faint)" }}>Carregando...</p>;
+    return <PageLoader />;
   }
 
   return (

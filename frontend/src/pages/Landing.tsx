@@ -52,6 +52,7 @@ export function Landing() {
           </div>
 
           <div className="landing-hero-visual">
+            <div className="landing-hero-card">
             <svg
               viewBox="0 0 420 260"
               role="img"
@@ -89,6 +90,7 @@ export function Landing() {
                 </text>
               </g>
             </svg>
+            </div>
             <p className="landing-chart-caption">projeção baseada no seu padrão de gastos atual</p>
           </div>
         </div>

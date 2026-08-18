@@ -16,13 +16,14 @@ interface CreateTransactionInput {
   amount: number;
   description?: string;
   date: Date;
-  accountId?: string;
+  accountId: string;
 }
 
 interface ListFilters {
   userId: string;
   type?: TransactionType;
   categoryId?: string;
+  accountId?: string;
   startDate?: Date;
   endDate?: Date;
 }
@@ -39,9 +40,7 @@ async function assertCategoryBelongsToUser(userId: string, categoryId: string) {
   return category;
 }
 
-async function resolveAccount(userId: string, accountId?: string) {
-  if (!accountId) return null;
-
+async function resolveAccount(userId: string, accountId: string) {
   const account = await prisma.account.findFirst({ where: { id: accountId, userId } });
 
   if (!account) {
@@ -64,7 +63,7 @@ export async function createTransaction(input: CreateTransactionInput) {
   const account = await resolveAccount(input.userId, input.accountId);
 
   let invoiceId: string | undefined;
-  if (account?.type === "CARTAO_CREDITO") {
+  if (account.type === "CARTAO_CREDITO") {
     if (input.type !== "DESPESA") {
       throw new TransactionError(
         "Cartão de crédito só registra despesas. Pagamento de fatura é lançado como despesa na conta que paga.",
@@ -83,7 +82,7 @@ export async function createTransaction(input: CreateTransactionInput) {
       amount: input.amount,
       description: input.description,
       date: input.date,
-      accountId: account?.id,
+      accountId: account.id,
       invoiceId,
     },
     include: { category: true, account: true },
@@ -105,7 +104,7 @@ export async function createInstallmentPurchase(
 
   const account = await resolveAccount(input.userId, input.accountId);
 
-  if (!account || account.type !== "CARTAO_CREDITO") {
+  if (account.type !== "CARTAO_CREDITO") {
     throw new TransactionError("Parcelamento só é permitido em contas de cartão de crédito.", 422);
   }
 
@@ -154,6 +153,7 @@ export async function listTransactions(filters: ListFilters) {
       userId: filters.userId,
       type: filters.type,
       categoryId: filters.categoryId,
+      accountId: filters.accountId,
       date: {
         gte: filters.startDate,
         lte: filters.endDate,

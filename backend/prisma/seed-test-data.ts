@@ -36,6 +36,13 @@ async function main() {
     process.exit(1);
   }
 
+  const account = await prisma.account.findFirst({ where: { userId: user.id } });
+
+  if (!account) {
+    console.error("Usuário não tem nenhuma conta. Toda transação exige accountId.");
+    process.exit(1);
+  }
+
   const now = new Date();
 
   function dateInMonth(monthsAgo: number, day: number) {
@@ -65,6 +72,7 @@ async function main() {
     await prisma.transaction.create({
       data: {
         userId: user.id,
+        accountId: account.id,
         categoryId: t.categoryId,
         type: t.type,
         amount: t.amount,

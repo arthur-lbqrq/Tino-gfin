@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 import { api } from "@/lib/api";
-import { User } from "@/lib/types";
+import { PlanState, User } from "@/lib/types";
 
 interface AuthResponse {
   user: User;
@@ -9,10 +9,12 @@ interface AuthResponse {
 
 interface AuthContextValue {
   user: User | null;
+  plan: PlanState | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshPlan: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -24,7 +26,21 @@ function loadStoredUser(): User | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(loadStoredUser);
+  const [plan, setPlan] = useState<PlanState | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const refreshPlan = useCallback(async () => {
+    try {
+      const data = await api.get<PlanState>("/billing/plan");
+      setPlan(data);
+    } catch {
+      setPlan(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) refreshPlan();
+  }, [user, refreshPlan]);
 
   function persistSession(data: AuthResponse) {
     localStorage.setItem("tino_token", data.token);
@@ -56,10 +72,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("tino_token");
     localStorage.removeItem("tino_user");
     setUser(null);
+    setPlan(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, plan, loading, login, register, logout, refreshPlan }}>
       {children}
     </AuthContext.Provider>
   );

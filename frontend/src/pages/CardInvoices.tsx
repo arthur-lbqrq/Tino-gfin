@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { Account, CreditLimitStatus, Invoice } from "@/lib/types";
 import { formatCurrency, formatMonthLabel } from "@/lib/format";
 import { CreditLimitBar } from "@/components/CreditLimitBar";
+import { PageLoader } from "@/components/PageLoader";
 
 export function CardInvoices() {
   const { accountId } = useParams<{ accountId: string }>();
@@ -59,7 +60,7 @@ export function CardInvoices() {
   }
 
   if (loading || !account) {
-    return <p style={{ color: "var(--ink-faint)" }}>Carregando...</p>;
+    return <PageLoader />;
   }
 
   return (

@@ -1,26 +1,31 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { DashboardSummary, CashflowPoint, Insight } from "@/lib/types";
+import { DashboardSummary, CashflowPoint, CategoryBreakdownItem, Insight } from "@/lib/types";
 import { SummaryCard } from "@/components/SummaryCard";
 import { InsightCard } from "@/components/InsightCard";
 import { CashflowChart } from "@/components/CashflowChart";
+import { CategoryBreakdownChart } from "@/components/CategoryBreakdownChart";
+import { PageLoader } from "@/components/PageLoader";
 
 export function Dashboard() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [cashflow, setCashflow] = useState<CashflowPoint[]>([]);
+  const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryBreakdownItem[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [summaryData, cashflowData, insightsData] = await Promise.all([
+        const [summaryData, cashflowData, categoryData, insightsData] = await Promise.all([
           api.get<DashboardSummary>("/dashboard/summary"),
           api.get<CashflowPoint[]>("/dashboard/cashflow"),
+          api.get<CategoryBreakdownItem[]>("/dashboard/category-breakdown"),
           api.get<Insight[]>("/insights"),
         ]);
         setSummary(summaryData);
         setCashflow(cashflowData);
+        setCategoryBreakdown(categoryData);
         setInsights(insightsData);
       } finally {
         setLoading(false);
@@ -30,7 +35,7 @@ export function Dashboard() {
   }, []);
 
   if (loading) {
-    return <p style={{ color: "var(--ink-faint)" }}>Carregando...</p>;
+    return <PageLoader />;
   }
 
   return (
@@ -69,7 +74,10 @@ export function Dashboard() {
         )}
       </div>
 
-      {cashflow.length > 0 && <CashflowChart data={cashflow} />}
+      <div style={{ display: "grid", gridTemplateColumns: categoryBreakdown.length > 0 ? "2fr 1fr" : "1fr", gap: 20 }}>
+        {cashflow.length > 0 && <CashflowChart data={cashflow} />}
+        {categoryBreakdown.length > 0 && <CategoryBreakdownChart data={categoryBreakdown} />}
+      </div>
     </div>
   );
 }

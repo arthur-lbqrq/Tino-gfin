@@ -25,7 +25,10 @@ export function TransactionForm({ categories, onCreated, onCreatedMany }: Transa
   const isCardAccount = selectedAccount?.type === "CARTAO_CREDITO";
 
   useEffect(() => {
-    api.get<Account[]>("/accounts").then(setAccounts);
+    api.get<Account[]>("/accounts").then((data) => {
+      setAccounts(data);
+      setAccountId((current) => current || data[0]?.id || "");
+    });
   }, []);
 
   async function handleSubmit(event: FormEvent) {
@@ -37,6 +40,11 @@ export function TransactionForm({ categories, onCreated, onCreatedMany }: Transa
       return;
     }
 
+    if (!accountId) {
+      setError("Selecione uma conta.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const payload = {
@@ -45,7 +53,7 @@ export function TransactionForm({ categories, onCreated, onCreatedMany }: Transa
         amount: Number(amount),
         description: description || undefined,
         date,
-        accountId: accountId || undefined,
+        accountId,
         installments: isCardAccount && Number(installments) > 1 ? Number(installments) : undefined,
       };
 
@@ -128,7 +136,7 @@ export function TransactionForm({ categories, onCreated, onCreatedMany }: Transa
           </select>
         </div>
         <div className="form-group">
-          <label htmlFor="account">Conta (opcional)</label>
+          <label htmlFor="account">Conta</label>
           <select
             id="account"
             value={accountId}
@@ -136,8 +144,9 @@ export function TransactionForm({ categories, onCreated, onCreatedMany }: Transa
               setAccountId(e.target.value);
               setInstallments("1");
             }}
+            required
           >
-            <option value="">Sem conta específica</option>
+            {accounts.length === 0 && <option value="">Nenhuma conta cadastrada</option>}
             {accounts.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}

@@ -17,7 +17,7 @@ const transactionSchema = z.object({
   amount: z.number().positive("Valor deve ser maior que zero"),
   description: z.string().optional(),
   date: z.coerce.date(),
-  accountId: z.string().uuid().optional(),
+  accountId: z.string().uuid("Conta inválida"),
   installments: z.number().int().min(1).max(48).optional(),
 });
 

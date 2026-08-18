@@ -7,7 +7,7 @@ import {
   findOwnedRecurringTransaction,
   updateRecurringTransaction,
   deleteRecurringTransaction,
-  generatePendingRecurringTransactions,
+  generateDueTransactions,
   RecurringTransactionError,
 } from "./recurring-transactions.service";
 
@@ -94,10 +94,10 @@ export async function remove(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-// Endpoint manual pro MVP: gera as transações pendentes até hoje.
+// Endpoint manual (além do trigger lazy no dashboard): gera as transações pendentes até hoje.
 export async function generatePending(req: AuthenticatedRequest, res: Response) {
   try {
-    const created = await generatePendingRecurringTransactions(req.userId!);
+    const created = await generateDueTransactions(req.userId!);
     return res.status(201).json({ generated: created.length, transactions: created });
   } catch (error) {
     return handleError(error, res);

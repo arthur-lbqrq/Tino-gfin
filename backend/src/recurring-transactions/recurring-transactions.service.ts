@@ -27,7 +27,7 @@ interface UpdateRecurringInput {
   active?: boolean;
 }
 
-function addInterval(date: Date, frequency: RecurrenceFrequency): Date {
+export function addInterval(date: Date, frequency: RecurrenceFrequency): Date {
   const next = new Date(date);
   switch (frequency) {
     case "DIARIA":
@@ -101,8 +101,9 @@ export async function deleteRecurringTransaction(userId: string, id: string) {
 }
 
 // Gera as transações reais que estão pendentes até hoje, a partir dos modelos
-// de recorrência ativos. Endpoint manual no MVP; no futuro vira um job de cron.
-export async function generatePendingRecurringTransactions(userId: string) {
+// de recorrência ativos. Disparada lazy (dashboard) e também exposta como
+// endpoint manual; no futuro pode virar um job de cron.
+export async function generateDueTransactions(userId: string) {
   const today = new Date();
 
   const recurrences = await prisma.recurringTransaction.findMany({

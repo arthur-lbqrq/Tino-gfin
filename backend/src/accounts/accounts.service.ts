@@ -1,5 +1,6 @@
-import { Account, AccountType } from "@prisma/client";
+import { Account, AccountType, Plan } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { ACCOUNT_LIMIT_BY_PLAN } from "@/billing/plan-limits";
 
 export class AccountError extends Error {
   constructor(message: string, public statusCode = 400) {
@@ -9,6 +10,7 @@ export class AccountError extends Error {
 
 interface CreateAccountInput {
   userId: string;
+  plan: Plan;
   name: string;
   type: AccountType;
   initialBalance: number;
@@ -48,6 +50,17 @@ export async function listAccounts(userId: string) {
 
 export async function createAccount(input: CreateAccountInput) {
   assertCreditCardFields(input.type, input.creditLimit, input.closingDay, input.dueDay);
+
+  const limit = ACCOUNT_LIMIT_BY_PLAN[input.plan];
+  if (limit !== null) {
+    const currentCount = await prisma.account.count({ where: { userId: input.userId } });
+    if (currentCount >= limit) {
+      throw new AccountError(
+        `O plano Free permite só ${limit} conta. Faça upgrade pra Pro pra ter contas ilimitadas.`,
+        402
+      );
+    }
+  }
 
   return prisma.account.create({
     data: {

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import { registerUser, loginUser, AuthError } from "./auth.service";
+import { AuthenticatedRequest } from "./auth.middleware";
+import { registerUser, loginUser, deleteUserAccount, AuthError } from "./auth.service";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Nome muito curto"),
@@ -10,6 +11,10 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido"),
+  password: z.string().min(1, "Senha obrigatória"),
+});
+
+const deleteAccountSchema = z.object({
   password: z.string().min(1, "Senha obrigatória"),
 });
 
@@ -48,5 +53,24 @@ export async function login(req: Request, res: Response) {
     }
     console.error(error);
     return res.status(500).json({ message: "Erro interno ao fazer login." });
+  }
+}
+
+export async function deleteMe(req: AuthenticatedRequest, res: Response) {
+  const parsed = deleteAccountSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
+  }
+
+  try {
+    await deleteUserAccount(req.userId!, parsed.data.password);
+    return res.status(204).send();
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error);
+    return res.status(500).json({ message: "Erro interno ao excluir a conta." });
   }
 }

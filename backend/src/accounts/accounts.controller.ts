@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { z } from "zod";
 import { AuthenticatedRequest } from "@/auth/auth.middleware";
+import { PlanAwareRequest } from "@/billing/plan.middleware";
 import {
   listAccounts,
   createAccount,
@@ -37,7 +38,7 @@ export async function index(req: AuthenticatedRequest, res: Response) {
   return res.json(accounts);
 }
 
-export async function create(req: AuthenticatedRequest, res: Response) {
+export async function create(req: PlanAwareRequest, res: Response) {
   const parsed = accountSchema.safeParse(req.body);
 
   if (!parsed.success) {
@@ -45,7 +46,7 @@ export async function create(req: AuthenticatedRequest, res: Response) {
   }
 
   try {
-    const account = await createAccount({ userId: req.userId!, ...parsed.data });
+    const account = await createAccount({ userId: req.userId!, plan: req.plan ?? "FREE", ...parsed.data });
     return res.status(201).json(account);
   } catch (error) {
     return handleError(error, res);

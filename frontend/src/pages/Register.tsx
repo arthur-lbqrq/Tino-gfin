@@ -64,6 +64,11 @@ export function Register() {
           </button>
         </form>
 
+        <p style={{ fontSize: 12, color: "var(--ink-faint)", marginTop: 12, textAlign: "center" }}>
+          Ao criar conta, você concorda com os <Link to="/termos">Termos de Uso</Link> e a{" "}
+          <Link to="/privacidade">Política de Privacidade</Link>.
+        </p>
+
         <p className="auth-switch">
           Já tem conta? <Link to="/login">Entrar</Link>
         </p>

@@ -48,6 +48,7 @@
 /* ---------- hero ---------- */
 .landing-hero {
   padding: 72px 0 88px;
+  background: radial-gradient(60% 60% at 78% 15%, var(--primary-soft) 0%, transparent 70%);
 }
 .landing-hero-grid {
   display: grid;
@@ -105,6 +106,13 @@
 .landing-btn-ghost:hover {
   border-color: var(--ink-faint);
   background: var(--surface-alt);
+}
+.landing-hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 4px rgba(19, 35, 29, 0.04), 0 20px 44px rgba(19, 35, 29, 0.1);
+  padding: 24px 20px 16px;
 }
 .landing-hero-visual svg {
   width: 100%;

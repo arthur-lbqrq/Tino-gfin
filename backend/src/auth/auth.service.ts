@@ -83,11 +83,10 @@ export async function registerUser({ name, email, password }: RegisterInput) {
     console.error("Falha ao enviar e-mail de verificação:", error);
   });
 
-  const token = generateToken(user.id);
-
+  // Sem token aqui de propósito: a conta só fica utilizável depois de confirmar
+  // o e-mail (ver loginUser). Registrar não loga o usuário automaticamente.
   return {
     user: { id: user.id, name: user.name, email: user.email },
-    token,
   };
 }
 
@@ -188,6 +187,13 @@ export async function loginUser({ email, password }: LoginInput) {
 
   if (!passwordMatches) {
     throw new AuthError("E-mail ou senha inválidos.", 401);
+  }
+
+  if (!user.emailVerified) {
+    throw new AuthError(
+      "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada ou peça um novo link de confirmação.",
+      403
+    );
   }
 
   const token = generateToken(user.id);

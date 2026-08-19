@@ -10,6 +10,13 @@ function required(key: string): string {
 
 const PLACEHOLDER_JWT_SECRET = "troque-por-uma-string-aleatoria-longa";
 
+// O header Origin que o navegador manda nunca tem barra no final — sem tirar
+// isso aqui, "https://app.com/" configurado por engano no .env nunca bate com
+// "https://app.com" e o CORS fica bloqueado silenciosamente (sem erro no boot).
+function stripTrailingSlash(url: string): string {
+  return url.replace(/\/+$/, "");
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: Number(process.env.PORT ?? 3333),
@@ -22,7 +29,7 @@ export const env = {
   // Inclui algumas portas vizinhas porque o Vite sobe na próxima livre quando
   // 5173 está ocupada (outra instância presa, outro projeto etc.) — sem isso,
   // qualquer instância anterior que não morreu direito quebra o CORS de novo.
-  allowedOrigins: process.env.FRONTEND_URL?.split(",").map((o) => o.trim()) ?? [
+  allowedOrigins: process.env.FRONTEND_URL?.split(",").map((o) => stripTrailingSlash(o.trim())) ?? [
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",
@@ -45,7 +52,7 @@ export const env = {
   // Origin único usado pra montar links em e-mail (verificação, reset de senha).
   // Reaproveita o primeiro valor de FRONTEND_URL — allowedOrigins aceita uma lista
   // pro CORS, mas um e-mail só pode apontar pra um lugar.
-  frontendUrl: process.env.FRONTEND_URL?.split(",")[0]?.trim() || "http://localhost:5173",
+  frontendUrl: stripTrailingSlash(process.env.FRONTEND_URL?.split(",")[0]?.trim() || "http://localhost:5173"),
   // DSN do Sentry — ausente = rastreio de erro desligado (no-op), não quebra nada.
   sentryDsn: process.env.SENTRY_DSN,
 };

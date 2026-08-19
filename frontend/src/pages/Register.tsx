@@ -1,26 +1,73 @@
 import { FormEvent, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { ApiError } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { FlowDivider } from "@/components/FlowDivider";
 
 export function Register() {
   const { register, loading } = useAuth();
-  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [resent, setResent] = useState(false);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
     try {
       await register(name, email, password);
-      navigate("/dashboard");
+      setSubmitted(true);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Não foi possível criar sua conta.");
     }
+  }
+
+  async function handleResend() {
+    setResent(false);
+    try {
+      await api.post("/auth/resend-verification", { email });
+      setResent(true);
+    } catch {
+      // silencioso: o endpoint sempre responde 200, um erro aqui só pode ser
+      // rede/servidor fora do ar — nada de novo pra mostrar além do que já está na tela
+    }
+  }
+
+  if (submitted) {
+    return (
+      <div className="auth-screen">
+        <div className="auth-card">
+          <div className="auth-brand">Tino</div>
+          <p className="auth-tagline">Confirme seu e-mail</p>
+          <FlowDivider />
+
+          <p style={{ fontSize: 14, color: "var(--ink-soft)", lineHeight: 1.6 }}>
+            Enviamos um link de confirmação para <strong>{email}</strong>. Clique nele pra
+            ativar sua conta — depois é só entrar normalmente.
+          </p>
+
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={handleResend}
+            style={{ width: "100%", marginTop: 20 }}
+          >
+            Reenviar e-mail de confirmação
+          </button>
+          {resent && (
+            <p style={{ fontSize: 13, color: "var(--primary)", marginTop: 8, textAlign: "center" }}>
+              Reenviado — confira sua caixa de entrada.
+            </p>
+          )}
+
+          <p className="auth-switch">
+            <Link to="/login">Voltar para o login</Link>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

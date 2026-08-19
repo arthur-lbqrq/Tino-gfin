@@ -7,6 +7,10 @@ interface AuthResponse {
   token: string;
 }
 
+interface RegisterResponse {
+  user: User;
+}
+
 interface AuthContextValue {
   user: User | null;
   plan: PlanState | null;
@@ -58,11 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Não loga o usuário automaticamente — a conta só fica utilizável depois
+  // de confirmar o e-mail (ver AuthError em loginUser no backend).
   const register = useCallback(async (name: string, email: string, password: string) => {
     setLoading(true);
     try {
-      const data = await api.post<AuthResponse>("/auth/register", { name, email, password });
-      persistSession(data);
+      await api.post<RegisterResponse>("/auth/register", { name, email, password });
     } finally {
       setLoading(false);
     }

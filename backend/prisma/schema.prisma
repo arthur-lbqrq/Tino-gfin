@@ -15,6 +15,15 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Verificação de e-mail e recuperação de senha: nunca guardamos o token puro,
+  // só o hash sha256 — o valor puro só existe no link enviado por e-mail e no
+  // request de confirmação, nunca em repouso no banco.
+  emailVerified               Boolean   @default(false)
+  verificationTokenHash       String?
+  verificationTokenExpiresAt  DateTime?
+  resetTokenHash              String?
+  resetTokenExpiresAt         DateTime?
+
   // Configuração do módulo fiscal MEI — opcional, só relevante pra quem ativa a
   // seção. dasMonthlyAmount fica a cargo do usuário informar (o valor da guia
   // varia por atividade e muda todo ano); meiRevenueLimit tem um teto padrão no

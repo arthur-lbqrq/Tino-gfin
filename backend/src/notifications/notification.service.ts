@@ -4,9 +4,12 @@ import { planAtLeast } from "@/billing/plan-limits";
 import { generateInsights } from "@/insights/insight.service";
 import { EmailProvider } from "./providers/email-provider";
 import { ConsoleEmailProvider } from "./providers/console-provider";
+import { ResendEmailProvider } from "./providers/resend-provider";
 
 function resolveProvider(): EmailProvider {
   switch (env.emailProvider) {
+    case "resend":
+      return new ResendEmailProvider();
     case "console":
     default:
       return new ConsoleEmailProvider();

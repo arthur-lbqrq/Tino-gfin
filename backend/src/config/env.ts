@@ -36,6 +36,16 @@ export const env = {
   // "console" loga em vez de enviar de verdade, até um provedor de e-mail
   // transacional (Resend, SendGrid) ser configurado.
   emailProvider: process.env.EMAIL_PROVIDER ?? "console",
+  // Só é lido de verdade quando emailProvider === "resend" (ver resend-provider.ts).
+  // Opcional aqui pra não travar o boot em ambientes que ainda usam o provider "console".
+  resendApiKey: process.env.RESEND_API_KEY,
+  // Remetente usado nos e-mails transacionais. O endereço de sandbox da Resend
+  // funciona sem verificar domínio, útil enquanto isso não é configurado.
+  emailFrom: process.env.EMAIL_FROM ?? "Tino <onboarding@resend.dev>",
+  // Origin único usado pra montar links em e-mail (verificação, reset de senha).
+  // Reaproveita o primeiro valor de FRONTEND_URL — allowedOrigins aceita uma lista
+  // pro CORS, mas um e-mail só pode apontar pra um lugar.
+  frontendUrl: process.env.FRONTEND_URL?.split(",")[0]?.trim() || "http://localhost:5173",
   // DSN do Sentry — ausente = rastreio de erro desligado (no-op), não quebra nada.
   sentryDsn: process.env.SENTRY_DSN,
 };

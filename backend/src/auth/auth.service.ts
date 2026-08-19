@@ -1,7 +1,9 @@
+import { randomBytes, createHash } from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/config/env";
+import { sendVerificationEmail, sendPasswordResetEmail } from "./email.service";
 
 interface RegisterInput {
   name: string;
@@ -26,6 +28,24 @@ function generateToken(userId: string) {
   } as jwt.SignOptions);
 }
 
+const VERIFICATION_TOKEN_TTL_HOURS = 24;
+const RESET_TOKEN_TTL_HOURS = 1;
+
+// Token de verificação/reset: o valor puro só existe no e-mail e no request de
+// confirmação — o banco guarda apenas o hash sha256, nunca o valor em si.
+function createSecureToken(): { token: string; hash: string } {
+  const token = randomBytes(32).toString("hex");
+  return { token, hash: hashToken(token) };
+}
+
+function hashToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+function addHours(date: Date, hours: number): Date {
+  return new Date(date.getTime() + hours * 60 * 60 * 1000);
+}
+
 export async function registerUser({ name, email, password }: RegisterInput) {
   const existingUser = await prisma.user.findUnique({ where: { email } });
 
@@ -34,9 +54,16 @@ export async function registerUser({ name, email, password }: RegisterInput) {
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
+  const { token: verificationToken, hash: verificationTokenHash } = createSecureToken();
 
   const user = await prisma.user.create({
-    data: { name, email, passwordHash },
+    data: {
+      name,
+      email,
+      passwordHash,
+      verificationTokenHash,
+      verificationTokenExpiresAt: addHours(new Date(), VERIFICATION_TOKEN_TTL_HOURS),
+    },
   });
 
   // Toda transação exige uma conta, então já cria uma conta "Padrão"
@@ -50,12 +77,89 @@ export async function registerUser({ name, email, password }: RegisterInput) {
     },
   });
 
+  // Não bloqueia o cadastro se o envio falhar (provedor de e-mail fora do ar,
+  // por exemplo) — o usuário sempre pode pedir reenvio depois.
+  sendVerificationEmail(user.email, verificationToken).catch((error) => {
+    console.error("Falha ao enviar e-mail de verificação:", error);
+  });
+
   const token = generateToken(user.id);
 
   return {
     user: { id: user.id, name: user.name, email: user.email },
     token,
   };
+}
+
+export async function verifyEmailToken(token: string): Promise<void> {
+  const user = await prisma.user.findFirst({
+    where: { verificationTokenHash: hashToken(token) },
+  });
+
+  if (!user || !user.verificationTokenExpiresAt || user.verificationTokenExpiresAt < new Date()) {
+    throw new AuthError("Token de verificação inválido ou expirado.", 400);
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { emailVerified: true, verificationTokenHash: null, verificationTokenExpiresAt: null },
+  });
+}
+
+// Sempre "sucede" silenciosamente se o e-mail não existir ou já estiver
+// verificado — mesma lógica de não revelar informação usada em requestPasswordReset.
+export async function resendVerificationEmail(email: string): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || user.emailVerified) return;
+
+  const { token, hash } = createSecureToken();
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      verificationTokenHash: hash,
+      verificationTokenExpiresAt: addHours(new Date(), VERIFICATION_TOKEN_TTL_HOURS),
+    },
+  });
+
+  await sendVerificationEmail(user.email, token).catch((error) => {
+    console.error("Falha ao reenviar e-mail de verificação:", error);
+  });
+}
+
+// Nunca revela se o e-mail existe na base — sempre "sucede" do ponto de vista
+// de quem chamou, pra não virar um jeito de enumerar contas cadastradas.
+export async function requestPasswordReset(email: string): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return;
+
+  const { token, hash } = createSecureToken();
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { resetTokenHash: hash, resetTokenExpiresAt: addHours(new Date(), RESET_TOKEN_TTL_HOURS) },
+  });
+
+  await sendPasswordResetEmail(user.email, token).catch((error) => {
+    console.error("Falha ao enviar e-mail de redefinição de senha:", error);
+  });
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  const user = await prisma.user.findFirst({
+    where: { resetTokenHash: hashToken(token) },
+  });
+
+  if (!user || !user.resetTokenExpiresAt || user.resetTokenExpiresAt < new Date()) {
+    throw new AuthError("Token de redefinição inválido ou expirado.", 400);
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 10);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash, resetTokenHash: null, resetTokenExpiresAt: null },
+  });
 }
 
 // Exclusão definitiva da conta e de todo o resto (transações, contas, metas,

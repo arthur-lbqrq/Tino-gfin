@@ -5,6 +5,7 @@ import {
   registerUser,
   loginUser,
   deleteUserAccount,
+  getCurrentUser,
   verifyEmailToken,
   resendVerificationEmail,
   requestPasswordReset,
@@ -79,6 +80,19 @@ export async function login(req: Request, res: Response) {
     }
     console.error(error);
     return res.status(500).json({ message: "Erro interno ao fazer login." });
+  }
+}
+
+export async function me(req: AuthenticatedRequest, res: Response) {
+  try {
+    const user = await getCurrentUser(req.userId!);
+    return res.json({ user });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return res.status(error.statusCode).json({ message: error.message });
+    }
+    console.error(error);
+    return res.status(500).json({ message: "Erro interno ao carregar usuário." });
   }
 }
 

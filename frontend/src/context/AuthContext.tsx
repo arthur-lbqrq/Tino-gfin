@@ -19,6 +19,7 @@ interface AuthContextValue {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshPlan: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -42,9 +43,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Busca o usuário atualizado no servidor — importante pra sincronizar coisas
+  // como emailVerified quando ele muda numa aba/sessão diferente da que ficou
+  // aberta (o localStorage guarda só o snapshot de quando a sessão começou).
+  const refreshUser = useCallback(async () => {
+    try {
+      const data = await api.get<{ user: User }>("/auth/me");
+      localStorage.setItem("tino_user", JSON.stringify(data.user));
+      setUser(data.user);
+    } catch {
+      // sessão inválida/expirada: deixa como está, a próxima chamada autenticada
+      // vai receber 401 e o ProtectedRoute cuida de mandar pro login
+    }
+  }, []);
+
   useEffect(() => {
     if (user) refreshPlan();
   }, [user, refreshPlan]);
+
+  // Só na carga inicial da aba — não depende de `user` pra não entrar em loop
+  // (refreshUser troca a referência do objeto a cada chamada).
+  useEffect(() => {
+    if (loadStoredUser()) refreshUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function persistSession(data: AuthResponse) {
     localStorage.setItem("tino_token", data.token);
@@ -62,8 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Não loga o usuário automaticamente — a conta só fica utilizável depois
-  // de confirmar o e-mail (ver AuthError em loginUser no backend).
+  // Não loga o usuário automaticamente — incentiva a confirmar o e-mail antes,
+  // mesmo o login não exigindo isso (ver loginUser no backend).
   const register = useCallback(async (name: string, email: string, password: string) => {
     setLoading(true);
     try {
@@ -81,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, plan, loading, login, register, logout, refreshPlan }}>
+    <AuthContext.Provider value={{ user, plan, loading, login, register, logout, refreshPlan, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { VerificationBanner } from "@/components/VerificationBanner";
 
 function DashboardIcon() {
   return (
@@ -175,6 +176,7 @@ export function Layout() {
       </aside>
 
       <main className="main-content">
+        {user && !user.emailVerified && <VerificationBanner email={user.email} />}
         <Outlet />
       </main>
     </div>

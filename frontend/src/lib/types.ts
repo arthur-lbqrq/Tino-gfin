@@ -5,6 +5,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  emailVerified: boolean;
 }
 
 export type Plan = "FREE" | "PRO" | "BUSINESS";

@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api, ApiError } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { FlowDivider } from "@/components/FlowDivider";
 import { PageLoader } from "@/components/PageLoader";
 
 type Status = "loading" | "success" | "error";
 
 export function VerifyEmail() {
+  const { refreshUser } = useAuth();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const [status, setStatus] = useState<Status>("loading");
@@ -28,7 +30,12 @@ export function VerifyEmail() {
 
     api
       .post("/auth/verify-email", { token })
-      .then(() => setStatus("success"))
+      .then(() => {
+        setStatus("success");
+        // Se já tinha uma sessão aberta (ex: verificou em outra aba), atualiza
+        // o emailVerified em cache pra sumir com o aviso sem precisar relogar.
+        refreshUser();
+      })
       .catch((err) => {
         setStatus("error");
         setMessage(err instanceof ApiError ? err.message : "Não foi possível confirmar seu e-mail.");

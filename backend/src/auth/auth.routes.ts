@@ -3,6 +3,7 @@ import { authMiddleware } from "./auth.middleware";
 import {
   register,
   login,
+  me,
   deleteMe,
   verifyEmail,
   resendVerification,
@@ -14,6 +15,7 @@ export const authRoutes = Router();
 
 authRoutes.post("/register", register);
 authRoutes.post("/login", login);
+authRoutes.get("/me", authMiddleware, me);
 authRoutes.delete("/me", authMiddleware, deleteMe);
 
 authRoutes.post("/verify-email", verifyEmail);

@@ -83,10 +83,11 @@ export async function registerUser({ name, email, password }: RegisterInput) {
     console.error("Falha ao enviar e-mail de verificação:", error);
   });
 
-  // Sem token aqui de propósito: a conta só fica utilizável depois de confirmar
-  // o e-mail (ver loginUser). Registrar não loga o usuário automaticamente.
+  // Sem token aqui de propósito: registrar não loga o usuário automaticamente,
+  // pra incentivar a confirmação — mas login funciona mesmo sem verificar
+  // (ver loginUser), então isso não trava ninguém.
   return {
-    user: { id: user.id, name: user.name, email: user.email },
+    user: { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified },
   };
 }
 
@@ -161,6 +162,13 @@ export async function resetPassword(token: string, newPassword: string): Promise
   });
 }
 
+export async function getCurrentUser(userId: string) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new AuthError("Usuário não encontrado.", 404);
+
+  return { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified };
+}
+
 // Exclusão definitiva da conta e de todo o resto (transações, contas, metas,
 // importações etc. — tudo referencia User com onDelete: Cascade). Exige a
 // senha de novo como confirmação, já que não tem volta.
@@ -189,17 +197,14 @@ export async function loginUser({ email, password }: LoginInput) {
     throw new AuthError("E-mail ou senha inválidos.", 401);
   }
 
-  if (!user.emailVerified) {
-    throw new AuthError(
-      "Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada ou peça um novo link de confirmação.",
-      403
-    );
-  }
-
+  // Não bloqueia login por e-mail não verificado — só sinaliza pro frontend
+  // mostrar um aviso. Bloquear de verdade só faz sentido depois que o envio de
+  // e-mail (Resend) estiver configurado; até lá, ninguém consegue confirmar
+  // um link que nunca chega, e travaria todo cadastro novo.
   const token = generateToken(user.id);
 
   return {
-    user: { id: user.id, name: user.name, email: user.email },
+    user: { id: user.id, name: user.name, email: user.email, emailVerified: user.emailVerified },
     token,
   };
 }

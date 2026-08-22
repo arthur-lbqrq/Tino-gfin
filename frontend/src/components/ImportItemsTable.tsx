@@ -26,6 +26,7 @@ export function ImportItemsTable({ items, categories, onAcceptMatch, onConfirm, 
 
   return (
     <div className="card">
+      <div className="table-scroll">
       <table className="transaction-table">
         <thead>
           <tr>
@@ -104,6 +105,7 @@ export function ImportItemsTable({ items, categories, onAcceptMatch, onConfirm, 
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

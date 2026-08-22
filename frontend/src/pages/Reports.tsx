@@ -131,7 +131,7 @@ export function Reports() {
         {dreLoading || !dre ? (
           <PageLoader />
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+          <div className="grid-2col" style={{ gap: 24 }}>
             <div>
               <div className="label" style={{ marginBottom: 8 }}>
                 Receitas — <span className="mono">{formatCurrency(dre.receitas.total)}</span>

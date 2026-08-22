@@ -13,36 +13,38 @@ export function TransactionList({ transactions, onDelete }: TransactionListProps
 
   return (
     <div className="card" style={{ padding: 0 }}>
-      <table className="transaction-table">
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Categoria</th>
-            <th>Descrição</th>
-            <th style={{ textAlign: "right" }}>Valor</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((t) => (
-            <tr key={t.id}>
-              <td>{new Date(t.date).toLocaleDateString("pt-BR")}</td>
-              <td>{t.category.name}</td>
-              <td>{t.description || "—"}</td>
-              <td style={{ textAlign: "right" }}>
-                <span className={t.type === "RECEITA" ? "amount-receita" : "amount-despesa"}>
-                  {t.type === "RECEITA" ? "+" : "-"} {formatCurrency(Number(t.amount))}
-                </span>
-              </td>
-              <td style={{ textAlign: "right" }}>
-                <button className="delete-btn" onClick={() => onDelete(t.id)}>
-                  Excluir
-                </button>
-              </td>
+      <div className="table-scroll">
+        <table className="transaction-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th style={{ textAlign: "right" }}>Valor</th>
+              <th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transactions.map((t) => (
+              <tr key={t.id}>
+                <td>{new Date(t.date).toLocaleDateString("pt-BR")}</td>
+                <td>{t.category.name}</td>
+                <td>{t.description || "—"}</td>
+                <td style={{ textAlign: "right" }}>
+                  <span className={t.type === "RECEITA" ? "amount-receita" : "amount-despesa"}>
+                    {t.type === "RECEITA" ? "+" : "-"} {formatCurrency(Number(t.amount))}
+                  </span>
+                </td>
+                <td style={{ textAlign: "right" }}>
+                  <button className="delete-btn" onClick={() => onDelete(t.id)}>
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

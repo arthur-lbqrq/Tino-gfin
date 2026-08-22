@@ -92,7 +92,7 @@ export function Planos() {
       )}
       {error && <p className="error-text" style={{ marginBottom: 24 }}>{error}</p>}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+      <div className="pricing-grid" style={{ gap: 20 }}>
         {TIERS.map((tier) => {
           const isCurrent = plan?.plan === tier.plan;
 

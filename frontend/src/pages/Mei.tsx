@@ -100,7 +100,7 @@ export function Mei() {
         <p>Acompanhe o teto anual de faturamento, a guia DAS e exporte um resumo pronto pro seu contador.</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
+      <div className="grid-2col" style={{ gap: 20, marginBottom: 24 }}>
         <MeiGauge status={status} />
 
         <div className="card">

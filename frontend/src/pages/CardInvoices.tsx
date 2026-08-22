@@ -98,7 +98,7 @@ export function CardInvoices() {
 
           {detail && (
             <div className="card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
                 <div>
                   <div className="label">Total da fatura</div>
                   <div className="mono" style={{ fontSize: 24, fontWeight: 600, marginTop: 4 }}>
@@ -118,33 +118,35 @@ export function CardInvoices() {
               {!detail.transactions || detail.transactions.length === 0 ? (
                 <div className="empty-state">Nenhuma compra nessa fatura.</div>
               ) : (
-                <table className="transaction-table">
-                  <thead>
-                    <tr>
-                      <th>Data</th>
-                      <th>Descrição</th>
-                      <th>Categoria</th>
-                      <th>Valor</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {detail.transactions.map((t) => (
-                      <tr key={t.id}>
-                        <td>{new Date(t.date).toLocaleDateString("pt-BR")}</td>
-                        <td>
-                          {t.description || t.category.name}
-                          {t.installmentNumber && t.installmentTotal && (
-                            <span className="installment-badge">
-                              {t.installmentNumber}/{t.installmentTotal}
-                            </span>
-                          )}
-                        </td>
-                        <td>{t.category.name}</td>
-                        <td className="amount-despesa">{formatCurrency(Number(t.amount))}</td>
+                <div className="table-scroll">
+                  <table className="transaction-table">
+                    <thead>
+                      <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Valor</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {detail.transactions.map((t) => (
+                        <tr key={t.id}>
+                          <td>{new Date(t.date).toLocaleDateString("pt-BR")}</td>
+                          <td>
+                            {t.description || t.category.name}
+                            {t.installmentNumber && t.installmentTotal && (
+                              <span className="installment-badge">
+                                {t.installmentNumber}/{t.installmentTotal}
+                              </span>
+                            )}
+                          </td>
+                          <td>{t.category.name}</td>
+                          <td className="amount-despesa">{formatCurrency(Number(t.amount))}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}

@@ -1,6 +1,23 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { VerificationBanner } from "@/components/VerificationBanner";
+
+function MenuIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
 
 function DashboardIcon() {
   return (
@@ -87,10 +104,41 @@ const PLAN_LABEL: Record<string, string> = { FREE: "Free", PRO: "Pro", BUSINESS:
 
 export function Layout() {
   const { user, plan, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Fecha o menu sempre que a rota muda — sem isso, o drawer ficaria aberto
+  // por cima da tela depois de tocar num link de navegação.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  // Trava o scroll do fundo enquanto o drawer está aberto no mobile.
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <div className="mobile-topbar">
+        <button
+          type="button"
+          className="mobile-menu-btn"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={menuOpen}
+        >
+          {menuOpen ? <CloseIcon /> : <MenuIcon />}
+        </button>
+        <div className="sidebar-brand">Tino</div>
+      </div>
+
+      {menuOpen && <div className="sidebar-overlay" onClick={() => setMenuOpen(false)} />}
+
+      <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
         <div className="sidebar-brand">Tino</div>
 
         <nav className="sidebar-nav">

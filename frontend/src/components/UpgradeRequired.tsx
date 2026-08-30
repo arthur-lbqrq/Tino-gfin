@@ -29,7 +29,7 @@ export function UpgradeRequired({ feature, minPlan }: UpgradeRequiredProps) {
       </div>
       <h3 style={{ fontSize: 18, marginBottom: 8 }}>{feature} é um recurso {PLAN_LABEL[minPlan]}</h3>
       <p style={{ fontSize: 14, color: "var(--ink-faint)", maxWidth: 380, margin: "0 auto 20px" }}>
-        Faça upgrade pra desbloquear {feature.toLowerCase()} e o resto do motor de insights do Tino.
+        Faça upgrade pra desbloquear {feature.toLowerCase()} e o resto do motor de insights do Faro.
       </p>
       <Link to="/planos" className="btn-primary" style={{ display: "inline-block", textDecoration: "none" }}>
         Ver planos

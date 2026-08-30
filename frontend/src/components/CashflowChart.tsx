@@ -44,8 +44,8 @@ export function CashflowChart({ data }: { data: CashflowPoint[] }) {
               border: "1px solid var(--border)",
             }}
           />
-          <Bar dataKey="receitas" name="Receitas" fill="#2f9c74" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="despesas" name="Despesas" fill="#b3402f" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="receitas" name="Receitas" fill="#0e7a52" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="despesas" name="Despesas" fill="#e04a32" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

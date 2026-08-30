@@ -81,5 +81,5 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 });
 
 app.listen(env.port, () => {
-  console.log(`🚀 Tino API rodando em http://localhost:${env.port}`);
+  console.log(`🚀 Faro API rodando em http://localhost:${env.port}`);
 });

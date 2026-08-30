@@ -67,7 +67,7 @@ export function Mei() {
   async function handleExportAnnualReport() {
     setExporting(true);
     try {
-      await api.download(`/mei/annual-report.pdf`, `tino-mei-${status?.year ?? new Date().getFullYear()}.pdf`);
+      await api.download(`/mei/annual-report.pdf`, `faro-mei-${status?.year ?? new Date().getFullYear()}.pdf`);
     } finally {
       setExporting(false);
     }

@@ -45,7 +45,7 @@ export function Transactions() {
     setExporting(format);
     setExportError(null);
     try {
-      await api.download(`/reports/transactions.${format}`, `tino-transacoes.${format}`);
+      await api.download(`/reports/transactions.${format}`, `faro-transacoes.${format}`);
     } catch (err) {
       setExportError(err instanceof ApiError ? err.message : "Erro ao exportar.");
     } finally {

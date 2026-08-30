@@ -50,7 +50,7 @@ export function ResetPassword() {
     return (
       <div className="auth-screen">
         <div className="auth-card">
-          <div className="auth-brand">Tino</div>
+          <div className="auth-brand">Faro</div>
           <p className="auth-tagline">Redefinir senha</p>
           <FlowDivider />
 
@@ -77,7 +77,7 @@ export function ResetPassword() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <div className="auth-brand">Tino</div>
+        <div className="auth-brand">Faro</div>
         <p className="auth-tagline">Crie uma senha nova</p>
         <FlowDivider />
 

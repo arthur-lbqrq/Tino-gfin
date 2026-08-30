@@ -27,7 +27,7 @@ export function Login() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <div className="auth-brand">Tino</div>
+        <div className="auth-brand">Faro</div>
         <p className="auth-tagline">Transforme dados em decisões</p>
         <FlowDivider />
 

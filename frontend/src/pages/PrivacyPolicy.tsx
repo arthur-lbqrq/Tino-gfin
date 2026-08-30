@@ -4,7 +4,7 @@ export function PrivacyPolicy() {
   return (
     <div className="auth-screen" style={{ alignItems: "flex-start", paddingTop: 48 }}>
       <div className="auth-card" style={{ maxWidth: 640, textAlign: "left" }}>
-        <div className="auth-brand">Tino</div>
+        <div className="auth-brand">Faro</div>
         <h1 style={{ fontSize: 22, marginTop: 8, marginBottom: 4 }}>Política de Privacidade</h1>
         <p style={{ fontSize: 13, color: "var(--ink-faint)", marginBottom: 24 }}>
           Última atualização: agosto de 2026
@@ -14,7 +14,7 @@ export function PrivacyPolicy() {
           <h3 style={{ fontSize: 15, marginBottom: 6 }}>1. Que dados coletamos</h3>
           <p>
             Nome e e-mail no cadastro. As transações, contas, categorias, orçamentos e metas que você mesmo
-            lança no Tino — inclusive quando importadas de um extrato bancário que você envia. Dados técnicos
+            lança no Faro — inclusive quando importadas de um extrato bancário que você envia. Dados técnicos
             básicos de erro (quando algo quebra) pra conseguirmos corrigir.
           </p>
         </section>
@@ -22,7 +22,7 @@ export function PrivacyPolicy() {
         <section style={{ marginBottom: 20 }}>
           <h3 style={{ fontSize: 15, marginBottom: 6 }}>2. Pra que usamos</h3>
           <p>
-            Só pra operar o Tino: calcular seus saldos e relatórios, gerar os insights sobre seus próprios
+            Só pra operar o Faro: calcular seus saldos e relatórios, gerar os insights sobre seus próprios
             dados financeiros, processar sua assinatura quando aplicável, e te avisar por e-mail sobre alertas
             críticos que você mesmo optou por receber. Não vendemos nem compartilhamos seus dados financeiros
             com terceiros pra publicidade.
@@ -59,7 +59,7 @@ export function PrivacyPolicy() {
 
         <section style={{ marginBottom: 24 }}>
           <h3 style={{ fontSize: 15, marginBottom: 6 }}>6. Contato</h3>
-          <p>Dúvida sobre seus dados ou essa política: fale com quem administra o Tino pelo e-mail de suporte.</p>
+          <p>Dúvida sobre seus dados ou essa política: fale com quem administra o Faro pelo e-mail de suporte.</p>
         </section>
 
         <p className="auth-switch">

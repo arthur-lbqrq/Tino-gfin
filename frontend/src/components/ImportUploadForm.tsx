@@ -67,7 +67,7 @@ export function ImportUploadForm({ accounts, onCreated }: ImportUploadFormProps)
     <form onSubmit={(e: FormEvent) => e.preventDefault()} className="card" style={{ marginBottom: 24 }}>
       <h3 style={{ fontSize: 16, marginBottom: 16 }}>Importar extrato</h3>
       <p style={{ fontSize: 13, color: "var(--ink-faint)", marginBottom: 16 }}>
-        Envie um extrato em OFX ou CSV do seu banco. O Tino tenta casar cada linha com uma transação já
+        Envie um extrato em OFX ou CSV do seu banco. O Faro tenta casar cada linha com uma transação já
         lançada e, quando não encontra, deixa pronto pra você confirmar como nova.
       </p>
 

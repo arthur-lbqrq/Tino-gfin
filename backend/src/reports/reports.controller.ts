@@ -67,7 +67,7 @@ export async function exportCsv(req: AuthenticatedRequest, res: Response) {
   const csv = buildTransactionsCsv(transactions);
 
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader("Content-Disposition", 'attachment; filename="tino-transacoes.csv"');
+  res.setHeader("Content-Disposition", 'attachment; filename="faro-transacoes.csv"');
   return res.send(csv);
 }
 
@@ -85,7 +85,7 @@ export async function exportPdf(req: AuthenticatedRequest, res: Response) {
   );
 
   res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", 'attachment; filename="tino-transacoes.pdf"');
+  res.setHeader("Content-Disposition", 'attachment; filename="faro-transacoes.pdf"');
   return res.send(pdf);
 }
 
@@ -100,7 +100,7 @@ export async function exportXlsx(req: AuthenticatedRequest, res: Response) {
   const xlsx = await buildTransactionsXlsx(transactions);
 
   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-  res.setHeader("Content-Disposition", 'attachment; filename="tino-transacoes.xlsx"');
+  res.setHeader("Content-Disposition", 'attachment; filename="faro-transacoes.xlsx"');
   return res.send(xlsx);
 }
 
@@ -126,7 +126,7 @@ export async function drePdf(req: AuthenticatedRequest, res: Response) {
   const pdf = await buildDrePdf(report);
 
   res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", 'attachment; filename="tino-dre.pdf"');
+  res.setHeader("Content-Disposition", 'attachment; filename="faro-dre.pdf"');
   return res.send(pdf);
 }
 
@@ -141,7 +141,7 @@ export async function dreXlsx(req: AuthenticatedRequest, res: Response) {
   const xlsx = await buildDreXlsx(report);
 
   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-  res.setHeader("Content-Disposition", 'attachment; filename="tino-dre.xlsx"');
+  res.setHeader("Content-Disposition", 'attachment; filename="faro-dre.xlsx"');
   return res.send(xlsx);
 }
 

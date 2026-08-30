@@ -64,7 +64,7 @@ export function buildTransactionsPdf(
       .filter((t) => t.type === "DESPESA")
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
-    doc.fontSize(18).text("Tino — Relatório de Transações", { align: "center" });
+    doc.fontSize(18).text("Faro — Relatório de Transações", { align: "center" });
     doc.fontSize(10).fillColor("#666").text(periodLabel, { align: "center" });
     doc.moveDown(1);
 
@@ -162,7 +162,7 @@ export function buildDrePdf(report: DreReport): Promise<Buffer> {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    doc.fontSize(18).text("Tino — DRE Simplificado", { align: "center" });
+    doc.fontSize(18).text("Faro — DRE Simplificado", { align: "center" });
     doc.fontSize(10).fillColor("#666").text(drePeriodLabel(report), { align: "center" });
     doc.moveDown(1.5);
 
@@ -245,7 +245,7 @@ export function buildMeiAnnualReportPdf(input: {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    doc.fontSize(18).text(`Tino — Relatório Anual MEI ${input.year}`, { align: "center" });
+    doc.fontSize(18).text(`Faro — Relatório Anual MEI ${input.year}`, { align: "center" });
     doc.fontSize(10).fillColor("#666").text("Resumo simplificado para envio ao contador", { align: "center" });
     doc.moveDown(1.5);
 

@@ -29,7 +29,7 @@ export function ForgotPassword() {
     return (
       <div className="auth-screen">
         <div className="auth-card">
-          <div className="auth-brand">Tino</div>
+          <div className="auth-brand">Faro</div>
           <p className="auth-tagline">Verifique seu e-mail</p>
           <FlowDivider />
 
@@ -49,7 +49,7 @@ export function ForgotPassword() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <div className="auth-brand">Tino</div>
+        <div className="auth-brand">Faro</div>
         <p className="auth-tagline">Esqueceu sua senha?</p>
         <FlowDivider />
 

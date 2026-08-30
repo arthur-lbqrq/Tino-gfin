@@ -78,7 +78,7 @@ export function Reports() {
   async function handleExportDre(format: "pdf" | "xlsx") {
     setExportingDre(format);
     try {
-      await api.download(`/reports/dre.${format}?startDate=${startDate}&endDate=${endDate}`, `tino-dre.${format}`);
+      await api.download(`/reports/dre.${format}?startDate=${startDate}&endDate=${endDate}`, `faro-dre.${format}`);
     } finally {
       setExportingDre(null);
     }

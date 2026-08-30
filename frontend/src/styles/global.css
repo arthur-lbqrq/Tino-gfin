@@ -1,34 +1,61 @@
 :root {
-  /* Cor — verde-pinho como cor de marca (fluxo/confiança/dinheiro), fundo frio neutro */
-  --bg: #f4f6f5;
-  --surface: #ffffff;
-  --surface-alt: #eaefec;
-  --ink: #13231d;
-  --ink-soft: #56655f;
-  --ink-faint: #8a958f;
-  --border: #dce3e0;
+  /* Cor — identidade Faro ("Pulso"): papel quente neutro, tinta quase-preta como
+     cor de AÇÃO PRIMÁRIA (não verde), coral como marca e como risco crítico —
+     a marca É o alerta. Verde nunca é decorativo, só significa "seguro/resolve". */
+  --bg: #f4f1ea;
+  --surface: #fffdf8;
+  --surface-alt: #edeae2;
+  --ink: #16150f;
+  --ink-soft: #5c594c;
+  --ink-faint: #8a8677;
+  --ink-disabled: #b7b3a5;
+  --border: #dcd7ca;
 
-  --primary: #1f6f5c;
-  --primary-dark: #154d40;
-  --primary-soft: #e3f0ec;
+  --primary: #16150f;
+  --primary-dark: #2a2820;
+  --primary-soft: #edeae2;
 
-  --signal-amber: #c97a1f;
+  --brand: #e04a32;
+  --brand-strong: #b33a25;
+  --brand-soft: #fbe7e1;
+
+  --signal-amber: #c97a16;
   --signal-amber-soft: #faf0e1;
-  --signal-red: #b3402f;
-  --signal-red-soft: #f8e8e5;
-  --signal-mint: #2f9c74;
-  --signal-mint-soft: #e5f4ec;
+  --signal-red: #e04a32;
+  --signal-red-strong: #b33a25;
+  --signal-red-soft: #fbe7e1;
+  --signal-mint: #0e7a52;
+  --signal-mint-soft: #e3f0e7;
+  --signal-mint-line: #4fb68a;
 
-  /* Tipografia */
-  --font-display: "Archivo Black", Impact, "Arial Narrow Bold", sans-serif;
-  --font-body: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+  --on-dark-text: #f4f1ea;
+  --on-dark-muted: #a8a496;
+
+  /* Tipografia — "todo dado é mono, toda prosa é Space Grotesk" */
+  --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-md: 9px;
+  --radius-lg: 14px;
+  --radius-xl: 16px;
 
-  --shadow-card: 0 1px 2px rgba(19, 35, 29, 0.04), 0 4px 16px rgba(19, 35, 29, 0.06);
+  --shadow-card: 0 1px 2px rgba(22, 21, 15, 0.04), 0 4px 16px rgba(22, 21, 15, 0.06);
+  --shadow-hero: 0 20px 52px rgba(22, 21, 15, 0.12);
+  --shadow-state: 0 2px 0 var(--brand-soft);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.72);
+  }
 }
 
 * {
@@ -53,10 +80,10 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 600;
   margin: 0;
   color: var(--ink);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 p {
@@ -66,6 +93,7 @@ p {
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
 button {
@@ -79,7 +107,7 @@ button {
 
 /* Foco visível para acessibilidade */
 :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
 
@@ -166,7 +194,7 @@ button {
   width: 3px;
   height: 18px;
   border-radius: 999px;
-  background: var(--primary);
+  background: var(--brand);
 }
 
 .sidebar-footer {
@@ -367,7 +395,7 @@ button {
 }
 
 .summary-card.positive .value {
-  color: var(--primary-dark);
+  color: var(--signal-mint);
 }
 
 .summary-card.negative .value {
@@ -388,13 +416,13 @@ button {
   align-items: stretch;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: 4px 12px 12px 4px;
   overflow: hidden;
   box-shadow: var(--shadow-card);
 }
 
 .insight-ticket .bar {
-  width: 5px;
+  width: 3px;
   flex-shrink: 0;
 }
 
@@ -560,7 +588,7 @@ button {
 .btn-primary:hover {
   background: var(--primary-dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(21, 77, 64, 0.25);
+  box-shadow: 0 4px 12px rgba(22, 21, 15, 0.2);
 }
 
 .btn-primary:active {
@@ -744,9 +772,11 @@ button {
 /* Elemento de assinatura: linha de fluxo sutil, usada com moderação */
 .flow-divider {
   width: 100%;
-  height: 24px;
-  margin: 8px 0 24px;
-  opacity: 0.5;
+  max-width: 220px;
+  height: 30px;
+  margin: 8px auto 24px;
+  display: block;
+  opacity: 0.6;
 }
 
 /* ===== Cartão de crédito: limite e faturas ===== */
@@ -763,7 +793,7 @@ button {
 .limit-bar-fill {
   height: 100%;
   border-radius: 999px;
-  background: var(--primary);
+  background: var(--signal-mint);
   transition: width 0.3s ease;
 }
 

@@ -83,7 +83,7 @@ export async function annualReportPdf(req: AuthenticatedRequest, res: Response) 
     });
 
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="tino-mei-${year}.pdf"`);
+    res.setHeader("Content-Disposition", `attachment; filename="faro-mei-${year}.pdf"`);
     return res.send(pdf);
   } catch (error) {
     return handleError(error, res);

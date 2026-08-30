@@ -62,7 +62,7 @@ describe("sendCriticalInsightDigest", () => {
 
     expect(result).toEqual({ sent: true, count: 1 });
     expect(sendMock).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "a@b.com", subject: "Tino: 1 alerta importante" })
+      expect.objectContaining({ to: "a@b.com", subject: "Faro: 1 alerta importante" })
     );
     expect(mockedPrisma.insightNotification.upsert).toHaveBeenCalled();
   });

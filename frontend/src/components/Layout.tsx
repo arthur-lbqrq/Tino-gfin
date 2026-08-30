@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { VerificationBanner } from "@/components/VerificationBanner";
+import { Logo } from "@/components/Logo";
 
 function MenuIcon() {
   return (
@@ -133,13 +134,17 @@ export function Layout() {
         >
           {menuOpen ? <CloseIcon /> : <MenuIcon />}
         </button>
-        <div className="sidebar-brand">Tino</div>
+        <div className="sidebar-brand">
+          <Logo size={16} wordmarkFontSize={19} />
+        </div>
       </div>
 
       {menuOpen && <div className="sidebar-overlay" onClick={() => setMenuOpen(false)} />}
 
       <aside className={`sidebar ${menuOpen ? "open" : ""}`}>
-        <div className="sidebar-brand">Tino</div>
+        <div className="sidebar-brand">
+          <Logo size={16} wordmarkFontSize={19} />
+        </div>
 
         <nav className="sidebar-nav">
           <NavLink to="/dashboard" end className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}>

@@ -23,7 +23,7 @@ export const env = {
   databaseUrl: required("DATABASE_URL"),
   jwtSecret: required("JWT_SECRET"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? "7d",
-  // Lista separada por vírgula (ex: "https://app.tino.com,https://tino.com").
+  // Lista separada por vírgula (ex: "https://app.faro.com,https://faro.com").
   // Sem isso configurado, CORS não libera nenhuma origin em produção — só
   // localhost, pra não subir com a API aberta pra qualquer site por engano.
   // Inclui algumas portas vizinhas porque o Vite sobe na próxima livre quando
@@ -48,7 +48,7 @@ export const env = {
   resendApiKey: process.env.RESEND_API_KEY,
   // Remetente usado nos e-mails transacionais. O endereço de sandbox da Resend
   // funciona sem verificar domínio, útil enquanto isso não é configurado.
-  emailFrom: process.env.EMAIL_FROM ?? "Tino <onboarding@resend.dev>",
+  emailFrom: process.env.EMAIL_FROM ?? "Faro <onboarding@resend.dev>",
   // Origin único usado pra montar links em e-mail (verificação, reset de senha).
   // Reaproveita o primeiro valor de FRONTEND_URL — allowedOrigins aceita uma lista
   // pro CORS, mas um e-mail só pode apontar pra um lugar.

@@ -67,7 +67,7 @@ export function Dashboard() {
         {insights.length === 0 ? (
           <div className="card empty-state">
             Nenhum alerta por enquanto. Continue lançando suas transações — assim que houver
-            histórico suficiente, o Tino começa a avisar o que importa.
+            histórico suficiente, o Faro começa a avisar o que importa.
           </div>
         ) : (
           insights.map((insight, i) => <InsightCard key={i} insight={insight} />)

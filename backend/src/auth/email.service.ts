@@ -6,8 +6,8 @@ export async function sendVerificationEmail(email: string, token: string): Promi
 
   await emailProvider.send({
     to: email,
-    subject: "Confirme seu e-mail no Tino",
-    body: `Confirme seu e-mail clicando no link abaixo:\n\n${link}\n\nSe você não criou uma conta no Tino, pode ignorar este e-mail.`,
+    subject: "Confirme seu e-mail no Faro",
+    body: `Confirme seu e-mail clicando no link abaixo:\n\n${link}\n\nSe você não criou uma conta no Faro, pode ignorar este e-mail.`,
   });
 }
 
@@ -16,7 +16,7 @@ export async function sendPasswordResetEmail(email: string, token: string): Prom
 
   await emailProvider.send({
     to: email,
-    subject: "Redefinição de senha — Tino",
+    subject: "Redefinição de senha — Faro",
     body: `Recebemos um pedido pra redefinir sua senha. Clique no link abaixo pra criar uma nova senha:\n\n${link}\n\nSe você não pediu isso, pode ignorar este e-mail — sua senha continua a mesma.`,
   });
 }

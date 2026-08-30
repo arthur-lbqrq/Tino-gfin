@@ -55,7 +55,7 @@ export async function sendCriticalInsightDigest(userId: string): Promise<{ sent:
 
   await emailProvider.send({
     to: user.email,
-    subject: toSend.length === 1 ? "Tino: 1 alerta importante" : `Tino: ${toSend.length} alertas importantes`,
+    subject: toSend.length === 1 ? "Faro: 1 alerta importante" : `Faro: ${toSend.length} alertas importantes`,
     body: formatDigestBody(toSend.map((i) => i.message)),
   });
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { CheckoutSession, Plan } from "@/lib/types";
+import { Plan } from "@/lib/types";
 
 interface PlanTier {
   plan: Plan;
@@ -53,26 +53,29 @@ const TIERS: PlanTier[] = [
   },
 ];
 
+const PLAN_RANK: Record<Plan, number> = { FREE: 0, PRO: 1, BUSINESS: 2 };
+
 export function Planos() {
   const { plan, refreshPlan } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleUpgrade(target: Exclude<Plan, "FREE">) {
+  async function handleSwitchPlan(target: Plan) {
     setLoadingPlan(target);
     setMessage(null);
     setError(null);
     try {
-      const session = await api.post<CheckoutSession>("/billing/checkout", { plan: target });
-      if (session.pending) {
-        setMessage(session.message ?? "Pagamento ainda não está disponível.");
-      } else if (session.url) {
-        window.location.href = session.url;
-      }
+      await api.patch("/billing/plan", { plan: target });
       await refreshPlan();
+      // TODO: remover texto de placeholder quando Asaas estiver integrado.
+      // Ainda não existe cobrança real (PIX/boleto) — a troca abaixo só
+      // atualiza o plano direto no banco, pra destravar o produto pra teste.
+      setMessage(
+        `Em breve: pagamento via PIX/boleto (Asaas). Por enquanto, seu plano foi atualizado diretamente para ${TIERS.find((t) => t.plan === target)?.name} para fins de teste.`
+      );
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Erro ao iniciar upgrade.");
+      setError(err instanceof ApiError ? err.message : "Erro ao trocar de plano.");
     } finally {
       setLoadingPlan(null);
     }
@@ -95,6 +98,7 @@ export function Planos() {
       <div className="pricing-grid" style={{ gap: 20 }}>
         {TIERS.map((tier) => {
           const isCurrent = plan?.plan === tier.plan;
+          const isDowngrade = plan ? PLAN_RANK[tier.plan] < PLAN_RANK[plan.plan] : false;
 
           return (
             <div key={tier.plan} className="card" style={{ display: "flex", flexDirection: "column" }}>
@@ -130,15 +134,19 @@ export function Planos() {
                 ))}
               </ul>
 
-              {tier.plan !== "FREE" && !isCurrent && (
-                <button
-                  className="btn-primary"
-                  onClick={() => handleUpgrade(tier.plan as Exclude<Plan, "FREE">)}
-                  disabled={loadingPlan !== null}
-                >
-                  {loadingPlan === tier.plan ? "Aguarde..." : `Assinar ${tier.name}`}
-                </button>
-              )}
+              <button
+                className={isDowngrade ? "btn-secondary" : "btn-primary"}
+                onClick={() => handleSwitchPlan(tier.plan)}
+                disabled={isCurrent || loadingPlan !== null}
+              >
+                {isCurrent
+                  ? "Plano atual"
+                  : loadingPlan === tier.plan
+                    ? "Aguarde..."
+                    : isDowngrade
+                      ? `Voltar para ${tier.name}`
+                      : `Assinar ${tier.name}`}
+              </button>
             </div>
           );
         })}

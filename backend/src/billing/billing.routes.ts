@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { authMiddleware } from "@/auth/auth.middleware";
-import { currentPlan, checkout, webhook, grant } from "./billing.controller";
+import { currentPlan, checkout, switchPlan, webhook, grant } from "./billing.controller";
 
 export const billingRoutes = Router();
 
 billingRoutes.use(authMiddleware);
 
 billingRoutes.get("/plan", currentPlan);
+billingRoutes.patch("/plan", switchPlan);
 billingRoutes.post("/checkout", checkout);
 billingRoutes.put("/admin/grant", grant);
 

@@ -14,6 +14,10 @@ const grantSchema = z.object({
   plan: z.enum(["FREE", "PRO", "BUSINESS"]),
 });
 
+const switchPlanSchema = z.object({
+  plan: z.enum(["FREE", "PRO", "BUSINESS"]),
+});
+
 function handleError(error: unknown, res: Response) {
   if (error instanceof BillingError) {
     return res.status(error.statusCode).json({ message: error.message });
@@ -41,6 +45,26 @@ export async function checkout(req: AuthenticatedRequest, res: Response) {
   try {
     const session = await startCheckout(req.userId!, parsed.data.plan);
     return res.json(session);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+// Troca de plano self-service enquanto não existe gateway de pagamento real —
+// atualiza o plano direto no banco pro próprio usuário, sem cobrança nenhuma.
+// Reaproveita grantPlanManually (mesma lógica da concessão via admin) em vez
+// de duplicar a regra de paymentProvider aqui.
+// TODO: substituir por um fluxo de checkout real (Asaas) quando existir.
+export async function switchPlan(req: AuthenticatedRequest, res: Response) {
+  const parsed = switchPlanSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
+  }
+
+  try {
+    const updated = await grantPlanManually(req.userId!, parsed.data.plan);
+    return res.json(updated);
   } catch (error) {
     return handleError(error, res);
   }

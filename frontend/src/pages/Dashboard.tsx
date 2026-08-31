@@ -10,11 +10,13 @@ import {
   Commitment,
   MeiStatus,
   Goal,
+  Account,
 } from "@/lib/types";
 import { PageLoader } from "@/components/PageLoader";
 import { CashProjectionChart } from "@/components/CashProjectionChart";
 import { CommitmentsList } from "@/components/CommitmentsList";
 import { DeferModal } from "@/components/DeferModal";
+import { InsightMonitorList } from "@/components/InsightMonitorList";
 import { formatCurrency, formatDateBR } from "@/lib/format";
 import "./Dashboard.css";
 
@@ -58,6 +60,7 @@ export function Dashboard() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [projection, setProjection] = useState<CashProjection | null>(null);
   const [commitments, setCommitments] = useState<Commitment[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [meiStatus, setMeiStatus] = useState<MeiStatus | null>(null);
   const [goal, setGoal] = useState<Goal | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,18 +76,20 @@ export function Dashboard() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [summaryData, cashflowData, insightsData, projectionData, commitmentsData] = await Promise.all([
+        const [summaryData, cashflowData, insightsData, projectionData, commitmentsData, accountsData] = await Promise.all([
           api.get<DashboardSummary>("/dashboard/summary"),
           api.get<CashflowPoint[]>("/dashboard/cashflow?months=4"),
           api.get<Insight[]>("/insights"),
           api.get<CashProjection>("/dashboard/cash-projection"),
           api.get<Commitment[]>("/dashboard/commitments"),
+          api.get<Account[]>("/accounts"),
         ]);
         setSummary(summaryData);
         setCashflow(cashflowData);
         setInsights(insightsData);
         setProjection(projectionData);
         setCommitments(commitmentsData);
+        setAccounts(accountsData);
 
         if (isPro) {
           const [meiData, goalsData] = await Promise.allSettled([
@@ -124,6 +129,11 @@ export function Dashboard() {
     .slice(0, 2);
 
   const monthLabel = new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  // /dashboard/summary sem startDate/endDate soma o histórico inteiro — então
+  // receitas e despesas zeradas aqui significam "nunca lançou nada", não só
+  // "nada neste mês". Cobre também o caso defensivo de conta sem nenhuma conta
+  // cadastrada, embora todo cadastro já venha com uma conta "Padrão".
+  const isNewAccount = accounts.length === 0 || (summary ? summary.receitas === 0 && summary.despesas === 0 : false);
 
   return (
     <div className="dash">
@@ -276,25 +286,46 @@ export function Dashboard() {
             </div>
 
             <div className="dash-insights-rail">
-              {secondaryInsights.length > 0 ? (
-                secondaryInsights.map((insight, i) => (
-                  <div key={i} className={`insight-ticket ${insight.severity} dash-rail-ticket`}>
-                    <span className="bar" />
-                    <div className="body">
-                      <span className="tag">{insight.severity === "warning" ? "Atenção" : "Normal"}</span>
-                      <span className="message">{insight.message}</span>
-                    </div>
+              {secondaryInsights.map((insight, i) => (
+                <div key={i} className={`insight-ticket ${insight.severity} dash-rail-ticket`}>
+                  <span className="bar" />
+                  <div className="body">
+                    <span className="tag">{insight.severity === "warning" ? "Atenção" : "Normal"}</span>
+                    <span className="message">{insight.message}</span>
                   </div>
-                ))
-              ) : (
-                <div className="dash-rail-empty">Nenhum outro alerta no momento.</div>
-              )}
-              <div className="dash-learned-card">
-                <div className="mono dash-learned-kicker">O Faro aprendeu</div>
-                <div className="dash-learned-text">
-                  Ainda estamos aprendendo o padrão do seu caixa — quanto mais lançamentos, mais precisas ficam as previsões.
                 </div>
-              </div>
+              ))}
+
+              {isNewAccount ? (
+                <div className="dash-nudge">
+                  <div className="mono dash-nudge-kicker">Comece a receber avisos</div>
+                  <p className="dash-nudge-text">
+                    Os insights ficam mais precisos com dados reais. Lance sua primeira transação ou importe um extrato
+                    pra o motor aprender o padrão do seu caixa.
+                  </p>
+                  <div className="dash-nudge-actions">
+                    <Link to="/transactions" className="dash-alert-btn-primary mono">
+                      Lançar primeira transação
+                    </Link>
+                    <Link to="/importar" className="dash-nudge-btn-ghost mono">
+                      Importar extrato
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                summary && (
+                  <>
+                    <InsightMonitorList insights={insights} accounts={accounts} commitments={commitments} summary={summary} />
+                    <div className="dash-learned-card">
+                      <div className="mono dash-learned-kicker">O Faro aprendeu</div>
+                      <div className="dash-learned-text">
+                        Ainda estamos aprendendo o padrão do seu caixa — quanto mais lançamentos, mais precisas ficam as
+                        previsões.
+                      </div>
+                    </div>
+                  </>
+                )
+              )}
             </div>
           </div>
         </div>

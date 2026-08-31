@@ -9,9 +9,16 @@ function intensity(total: number, max: number): number {
 function cellColor(ratio: number): string {
   if (ratio === 0) return "var(--surface-alt)";
   // interpola de verde claro (primary-soft) até o pine-green forte (primary-dark)
+  // — tons fixos, não seguem a inversão de tema, por isso o texto da célula
+  // também usa uma cor invariante (ver cellTextColor) em vez de --ink-soft.
   const stops = ["#e3f0ec", "#bcdcd1", "#7fbba7", "#3f8a72", "#154d40"];
   const index = Math.min(stops.length - 1, Math.floor(ratio * (stops.length - 1)));
   return stops[index];
+}
+
+function cellTextColor(ratio: number): string {
+  if (ratio === 0) return "var(--ink-soft)";
+  return ratio > 0.6 ? "#fff" : "var(--ink-on-tint)";
 }
 
 export function ExpenseHeatmap({ data, monthLabel }: { data: DailyExpensePoint[]; monthLabel: string }) {
@@ -37,7 +44,7 @@ export function ExpenseHeatmap({ data, monthLabel }: { data: DailyExpensePoint[]
               alignItems: "center",
               justifyContent: "center",
               fontSize: 11,
-              color: intensity(point.total, max) > 0.6 ? "#fff" : "var(--ink-soft)",
+              color: cellTextColor(intensity(point.total, max)),
               fontWeight: 600,
             }}
           >

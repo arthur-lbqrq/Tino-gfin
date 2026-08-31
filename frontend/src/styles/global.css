@@ -1,7 +1,11 @@
 :root {
+  color-scheme: light;
+
   /* Cor — identidade Faro ("Pulso"): papel quente neutro, tinta quase-preta como
      cor de AÇÃO PRIMÁRIA (não verde), coral como marca e como risco crítico —
-     a marca É o alerta. Verde nunca é decorativo, só significa "seguro/resolve". */
+     a marca É o alerta. Verde nunca é decorativo, só significa "seguro/resolve".
+     Estes tokens (superfícies e tinta) invertem no tema escuro — ver os blocos
+     de override no fim do arquivo. */
   --bg: #f4f1ea;
   --surface: #fffdf8;
   --surface-alt: #edeae2;
@@ -14,7 +18,14 @@
   --primary: #16150f;
   --primary-dark: #2a2820;
   --primary-soft: #edeae2;
+  --on-primary: #fffdf8;
 
+  /* Invariantes: não mudam entre tema claro/escuro. --brand e os --signal-*
+     carregam significado (risco, alerta, sucesso) que precisa continuar
+     reconhecível nos dois temas. --surface-inverse e --ink-on-tint existem
+     pra elementos que já são "escuro fixo" (Central de Insights, rodapé da
+     landing) ou "claro fixo" (chips/banners em tom pastel) por design, e por
+     isso não podem seguir a inversão de --ink/--surface. */
   --brand: #e04a32;
   --brand-strong: #b33a25;
   --brand-soft: #fbe7e1;
@@ -30,6 +41,8 @@
 
   --on-dark-text: #f4f1ea;
   --on-dark-muted: #a8a496;
+  --surface-inverse: #16150f;
+  --ink-on-tint: #16150f;
 
   /* Tipografia — "todo dado é mono, toda prosa é Space Grotesk" */
   --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -44,6 +57,64 @@
   --shadow-card: 0 1px 2px rgba(22, 21, 15, 0.04), 0 4px 16px rgba(22, 21, 15, 0.06);
   --shadow-hero: 0 20px 52px rgba(22, 21, 15, 0.12);
   --shadow-state: 0 2px 0 var(--brand-soft);
+}
+
+/* Tema escuro por preferência do sistema — só quando o usuário não escolheu
+   um tema explicitamente pelo switch (ver ThemeToggle). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #15130f;
+    --surface: #201e17;
+    --surface-alt: #29261d;
+    --ink: #f4f1ea;
+    --ink-soft: #c7c3b5;
+    --ink-faint: #948f80;
+    --ink-disabled: #4a473c;
+    --border: #332e22;
+
+    --primary: #f4f1ea;
+    --primary-dark: #e4dfcf;
+    --primary-soft: #2a2820;
+    --on-primary: #16150f;
+  }
+}
+
+/* Landing e páginas de autenticação nunca foram desenhadas pro tema escuro
+   (usam --ink/--surface/--bg de formas que não sobrevivem à inversão) — fixa
+   essas rotas sempre no claro, independente do tema escolhido no app. */
+.force-light-theme {
+  color-scheme: light;
+  --bg: #f4f1ea;
+  --surface: #fffdf8;
+  --surface-alt: #edeae2;
+  --ink: #16150f;
+  --ink-soft: #5c594c;
+  --ink-faint: #8a8677;
+  --ink-disabled: #b7b3a5;
+  --border: #dcd7ca;
+  --primary: #16150f;
+  --primary-dark: #2a2820;
+  --primary-soft: #edeae2;
+  --on-primary: #fffdf8;
+}
+
+/* Tema escolhido explicitamente pelo switch — sempre vence, nas duas direções. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #15130f;
+  --surface: #201e17;
+  --surface-alt: #29261d;
+  --ink: #f4f1ea;
+  --ink-soft: #c7c3b5;
+  --ink-faint: #948f80;
+  --ink-disabled: #4a473c;
+  --border: #332e22;
+
+  --primary: #f4f1ea;
+  --primary-dark: #e4dfcf;
+  --primary-soft: #2a2820;
+  --on-primary: #16150f;
 }
 
 @keyframes pulse {
@@ -214,7 +285,7 @@ button {
 }
 
 .estado-agora-card {
-  background: var(--ink);
+  background: var(--surface-inverse);
   border-radius: 12px;
   padding: 16px;
   display: flex;
@@ -309,6 +380,28 @@ button {
   color: var(--brand);
   font-weight: 600;
   flex-shrink: 0;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-alt);
+  color: var(--ink);
+  border-color: var(--ink-faint);
 }
 
 .sidebar-footer-links {
@@ -448,7 +541,7 @@ button {
   padding: 12px 16px;
   margin-bottom: 24px;
   font-size: 13.5px;
-  color: var(--ink);
+  color: var(--ink-on-tint);
 }
 
 .verify-banner button {
@@ -709,7 +802,7 @@ button {
 
 .btn-primary {
   background: var(--primary);
-  color: white;
+  color: var(--on-primary);
   border: none;
   padding: 11px 20px;
   border-radius: var(--radius-sm);
@@ -1086,6 +1179,7 @@ button {
   border: 2px solid var(--signal-mint);
   background: var(--signal-mint-soft);
   padding: 13px;
+  color: var(--ink-on-tint);
 }
 
 .defer-option-label {
@@ -1256,6 +1350,7 @@ button {
   gap: 8px;
   font-size: 15px;
   line-height: 1.45;
+  color: var(--ink-on-tint);
 }
 
 .defer-root-cause-kicker {

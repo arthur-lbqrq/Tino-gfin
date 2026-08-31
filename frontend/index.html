@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Faro — Transforme dados em decisões</title>
+    <script>
+      // Aplica o tema salvo antes do primeiro paint, pra não piscar o tema
+      // errado por uma fração de segundo enquanto o React ainda não montou.
+      (function () {
+        try {
+          var stored = localStorage.getItem("tino_theme");
+          if (stored === "light" || stored === "dark") {
+            document.documentElement.setAttribute("data-theme", stored);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

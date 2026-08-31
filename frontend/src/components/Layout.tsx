@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { VerificationBanner } from "@/components/VerificationBanner";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { CashProjectionChart } from "@/components/CashProjectionChart";
 import { api } from "@/lib/api";
 import { CashProjection, Commitment } from "@/lib/types";
@@ -187,6 +188,8 @@ export function Layout() {
               </Link>
             )}
           </div>
+          <ThemeToggle />
+
           <div className="sidebar-footer-links">
             <Link to="/configuracoes" className="mono">
               Configurações

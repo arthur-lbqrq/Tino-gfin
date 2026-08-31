@@ -188,7 +188,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--ink);
+  background: var(--surface-inverse);
   border-radius: 11px;
   padding: 13px 15px;
 }
@@ -219,7 +219,7 @@
 }
 .landing-section-dark {
   padding: 96px 40px;
-  background: var(--ink);
+  background: var(--surface-inverse);
   color: var(--on-dark-text);
 }
 .landing-section-dark h2 {
@@ -409,6 +409,7 @@
   padding: 11px 13px;
   font-size: 14px;
   line-height: 1.4;
+  color: var(--ink-on-tint);
 }
 .landing-step-before-after {
   display: flex;
@@ -506,7 +507,7 @@
   padding: 9px 14px;
   border-radius: 7px;
   background: var(--signal-mint);
-  color: var(--surface);
+  color: var(--on-dark-text);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -617,7 +618,7 @@
   transition: background 0.15s, color 0.15s;
 }
 .landing-billing-toggle button.active {
-  background: var(--ink);
+  background: var(--surface-inverse);
   color: var(--on-dark-text);
 }
 .landing-billing-discount {
@@ -651,7 +652,7 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   background: var(--brand);
-  color: var(--surface);
+  color: var(--on-dark-text);
   padding: 6px 12px;
   border-radius: 6px;
   font-weight: 600;
@@ -737,7 +738,7 @@
   background: var(--bg);
 }
 .landing-plano-btn-primary {
-  background: var(--ink);
+  background: var(--surface-inverse);
   color: var(--on-dark-text);
   border-color: var(--ink);
   font-weight: 600;
@@ -809,7 +810,7 @@
 
 /* ---------- footer ---------- */
 .landing-footer {
-  background: var(--ink);
+  background: var(--surface-inverse);
   color: var(--on-dark-muted);
   padding: 40px;
 }

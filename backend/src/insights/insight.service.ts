@@ -1,7 +1,8 @@
 import { Plan, RecurrenceFrequency } from "@prisma/client";
 import { FREE_INSIGHT_TYPES } from "@/billing/plan-limits";
 import { prisma } from "@/lib/prisma";
-import { addInterval } from "@/recurring-transactions/recurring-transactions.service";
+import { addInterval } from "@/lib/recurrence";
+import { computeCashProjection } from "@/dashboard/projection.service";
 import { getBudgetStatus } from "@/budgets/budget.service";
 import { listGoalsWithProgress } from "@/goals/goals.service";
 import { getCreditLimitStatus } from "@/invoices/invoice.service";
@@ -142,64 +143,27 @@ async function projectRecurringTotals(userId: string, from: Date, to: Date) {
 // Regra 2: projeção de caixa combinando base certa (recorrências ativas, já
 // agendadas) com base estimada (média histórica de transações variáveis, ou seja,
 // sem recurringId — pra não contar duas vezes o que já é coberto pela base certa).
+// Delega pro mesmo motor day-by-day do dashboard (computeCashProjection) — é a
+// única fonte de verdade de "quantos dias até o caixa zerar" no sistema; manter
+// dois cálculos em paralelo gerava números diferentes pro mesmo risco.
 export async function checkCashflowProjection(userId: string, now: Date): Promise<Insight | null> {
-  const saldoAtual = await getSaldoAtual(userId, now);
-  if (saldoAtual <= 0) return null; // sem saldo pra "queimar"
+  const projection = await computeCashProjection(userId, now);
 
-  const horizonDays = 30;
-  const horizon = new Date(now);
-  horizon.setDate(horizon.getDate() + horizonDays);
-
-  const historyStart = new Date(now);
-  historyStart.setDate(historyStart.getDate() - 90);
-
-  const [{ receitas: receitasCertas, despesas: despesasCertas }, receitasVariaveis, despesasVariaveis] =
-    await Promise.all([
-      projectRecurringTotals(userId, now, horizon),
-      (async () => {
-        const result = await prisma.transaction.aggregate({
-          where: { userId, type: "RECEITA", recurringId: null, date: { gte: historyStart, lte: now } },
-          _sum: { amount: true },
-        });
-        return toNumber(result._sum.amount);
-      })(),
-      (async () => {
-        const result = await prisma.transaction.aggregate({
-          where: { userId, type: "DESPESA", recurringId: null, date: { gte: historyStart, lte: now } },
-          _sum: { amount: true },
-        });
-        return toNumber(result._sum.amount);
-      })(),
-    ]);
-
-  const diasHistorico = Math.max(
-    1,
-    Math.ceil((now.getTime() - historyStart.getTime()) / (1000 * 60 * 60 * 24))
-  );
-
-  const netCerto = receitasCertas - despesasCertas;
-  const taxaDiariaEstimada = (receitasVariaveis - despesasVariaveis) / diasHistorico;
-  const netEstimado = taxaDiariaEstimada * horizonDays;
-  const netProjetado = netCerto + netEstimado;
-
-  if (netProjetado >= 0) return null; // tendência combinada não é negativa
-
-  const taxaDiariaTotal = netProjetado / horizonDays;
-  const diasAteZerar = Math.floor(saldoAtual / Math.abs(taxaDiariaTotal));
-
-  if (diasAteZerar > 90) {
-    return null; // horizonte longo demais pra ser um alerta útil
+  if (projection.daysToNegative === null) {
+    return null;
   }
+
+  const { daysToNegative, saldoAtual, troughBalance, confidence } = projection;
 
   return {
     type: "cashflow_projection",
-    severity: diasAteZerar <= 15 ? "critical" : "warning",
-    message: `Considerando seus compromissos já agendados e seu padrão histórico de gastos, seu caixa fica negativo em aproximadamente ${diasAteZerar} dias.`,
+    severity: daysToNegative <= 15 ? "critical" : "warning",
+    message: `Considerando seus compromissos já agendados e seu padrão histórico de gastos, seu caixa fica negativo em aproximadamente ${daysToNegative} dias.`,
     data: {
       saldoAtual,
-      diasAteZerar,
-      netCerto: Math.round(netCerto * 100) / 100,
-      netEstimado: Math.round(netEstimado * 100) / 100,
+      diasAteZerar: daysToNegative,
+      troughBalance,
+      confidence,
     },
   };
 }

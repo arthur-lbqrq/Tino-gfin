@@ -8,6 +8,8 @@ import {
   updateRecurringTransaction,
   deleteRecurringTransaction,
   generateDueTransactions,
+  getDeferOptions,
+  deferRecurringTransaction,
   RecurringTransactionError,
 } from "./recurring-transactions.service";
 
@@ -99,6 +101,40 @@ export async function generatePending(req: AuthenticatedRequest, res: Response) 
   try {
     const created = await generateDueTransactions(req.userId!);
     return res.status(201).json({ generated: created.length, transactions: created });
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+export async function deferOptions(req: AuthenticatedRequest, res: Response) {
+  try {
+    const data = await getDeferOptions(req.userId!, req.params.id);
+    return res.json(data);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+const deferSchema = z.object({
+  originalDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
+  newDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
+});
+
+export async function defer(req: AuthenticatedRequest, res: Response) {
+  const parsed = deferSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(422).json({ errors: parsed.error.flatten().fieldErrors });
+  }
+
+  try {
+    const result = await deferRecurringTransaction(
+      req.userId!,
+      req.params.id,
+      parsed.data.originalDate,
+      parsed.data.newDate
+    );
+    return res.json(result);
   } catch (error) {
     return handleError(error, res);
   }

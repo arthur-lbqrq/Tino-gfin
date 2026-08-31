@@ -8,6 +8,7 @@ import { VerifyEmail } from "@/pages/VerifyEmail";
 import { ForgotPassword } from "@/pages/ForgotPassword";
 import { ResetPassword } from "@/pages/ResetPassword";
 import { Dashboard } from "@/pages/Dashboard";
+import { Compromissos } from "@/pages/Compromissos";
 import { Transactions } from "@/pages/Transactions";
 import { Accounts } from "@/pages/Accounts";
 import { CardInvoices } from "@/pages/CardInvoices";
@@ -38,6 +39,7 @@ export function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/compromissos" element={<Compromissos />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/accounts" element={<Accounts />} />
             <Route path="/accounts/:accountId/invoices" element={<CardInvoices />} />

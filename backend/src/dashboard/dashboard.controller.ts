@@ -2,6 +2,7 @@ import { Response } from "express";
 import { z } from "zod";
 import { AuthenticatedRequest } from "@/auth/auth.middleware";
 import { getSummary, getCashflow, getCategoryBreakdown, getDailyExpenses } from "./dashboard.service";
+import { computeCashProjection, listCommitments } from "./projection.service";
 
 const summaryQuerySchema = z.object({
   startDate: z.coerce.date().optional(),
@@ -82,6 +83,24 @@ export async function dailyExpenses(req: AuthenticatedRequest, res: Response) {
 
   try {
     const data = await getDailyExpenses(req.userId!, parsed.data.referenceDate);
+    return res.json(data);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+export async function cashProjection(req: AuthenticatedRequest, res: Response) {
+  try {
+    const data = await computeCashProjection(req.userId!);
+    return res.json(data);
+  } catch (error) {
+    return handleError(error, res);
+  }
+}
+
+export async function commitments(req: AuthenticatedRequest, res: Response) {
+  try {
+    const data = await listCommitments(req.userId!);
     return res.json(data);
   } catch (error) {
     return handleError(error, res);

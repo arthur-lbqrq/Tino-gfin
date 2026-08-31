@@ -1,7 +1,7 @@
 import { Router, Response, NextFunction } from "express";
 import { authMiddleware, AuthenticatedRequest } from "@/auth/auth.middleware";
 import { generateDueTransactions } from "@/recurring-transactions/recurring-transactions.service";
-import { summary, cashflow, categoryBreakdown, dailyExpenses } from "./dashboard.controller";
+import { summary, cashflow, categoryBreakdown, dailyExpenses, cashProjection, commitments } from "./dashboard.controller";
 
 export const dashboardRoutes = Router();
 
@@ -24,3 +24,5 @@ dashboardRoutes.get("/summary", summary);
 dashboardRoutes.get("/cashflow", cashflow);
 dashboardRoutes.get("/category-breakdown", categoryBreakdown);
 dashboardRoutes.get("/daily-expenses", dailyExpenses);
+dashboardRoutes.get("/cash-projection", cashProjection);
+dashboardRoutes.get("/commitments", commitments);

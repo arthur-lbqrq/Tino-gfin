@@ -39,7 +39,7 @@ export function Landing() {
     <div className="landing">
       <nav className="landing-nav">
         <div className="wrap landing-nav-row">
-          <Logo size={17} wordmarkFontSize={22} />
+          <Logo />
           <div className="landing-nav-links">
             <a href="#como-funciona">Como funciona</a>
             <a href="#diferencial">Diferencial</a>
@@ -546,7 +546,7 @@ export function Landing() {
 
       <footer className="landing-footer">
         <div className="wrap landing-footer-row">
-          <Logo size={15} wordmarkFontSize={21} textColor="var(--on-dark-text)" />
+          <Logo size={26} wordmarkFontSize={21} tone="paper" />
           <div className="landing-footer-links">
             <Link to="/privacidade">Privacidade</Link>
             <Link to="/termos">Termos de uso</Link>

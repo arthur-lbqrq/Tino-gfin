@@ -1,43 +1,26 @@
+import { FaroMark } from "@/components/FaroMark";
+
 interface LogoProps {
   size?: number;
   wordmarkFontSize?: number;
-  color?: string;
-  textColor?: string;
+  tone?: "ink" | "paper";
   className?: string;
 }
 
-// Marca do Faro: glifo de pulso (o farejar do problema antes de ele chegar) + wordmark.
-export function Logo({
-  size = 16,
-  wordmarkFontSize = 22,
-  color = "var(--brand)",
-  textColor = "var(--ink)",
-  className,
-}: LogoProps) {
+// Lockup da marca: símbolo Bloco + wordmark "Faro", gap 11px. `tone` escolhe
+// entre o par pra papel claro ("ink") ou fundo escuro ("paper") — ver FaroMark.
+export function Logo({ size = 30, wordmarkFontSize = 26, tone = "ink", className }: LogoProps) {
+  const textColor = tone === "paper" ? "var(--on-dark-text)" : "var(--ink)";
+
   return (
     <div className={className} style={{ display: "flex", alignItems: "center", gap: 11 }}>
-      <svg
-        width={size * 1.625}
-        height={size}
-        viewBox="0 0 26 16"
-        style={{ display: "block", flexShrink: 0 }}
-        aria-hidden="true"
-      >
-        <polyline
-          points="0,9 5,9 8,3 11,14 14,6 17,9 26,9"
-          fill="none"
-          stroke={color}
-          strokeWidth="2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-      </svg>
+      <FaroMark size={size} tone={tone} />
       <div
         style={{
           fontFamily: "var(--font-display)",
           fontSize: wordmarkFontSize,
           fontWeight: 600,
-          letterSpacing: "-0.02em",
+          letterSpacing: "-0.025em",
           color: textColor,
         }}
       >

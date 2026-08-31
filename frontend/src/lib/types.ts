@@ -216,3 +216,66 @@ export interface Insight {
   message: string;
   data: Record<string, number | string>;
 }
+
+export interface CashProjectionPoint {
+  date: string;
+  balance: number;
+}
+
+export interface CashProjection {
+  saldoAtual: number;
+  series: CashProjectionPoint[];
+  zeroCrossingIndex: number | null;
+  daysToNegative: number | null;
+  negativeDate: string | null;
+  troughBalance: number;
+  confidence: number;
+}
+
+export interface Commitment {
+  id: string;
+  recurringId: string | null;
+  date: string;
+  description: string;
+  amount: number;
+  type: TransactionType;
+  deferrable: boolean;
+  causeNote: string | null;
+  severity: "critical" | "warning" | "normal";
+}
+
+export interface DeferOption {
+  label: string;
+  newDate: string;
+  cost: number;
+  projectedDaysToNegative: number | null;
+  resolves: boolean;
+}
+
+export interface DeferOptionsResponse {
+  commitment: { id: string; description: string; amount: number; originalDate: string };
+  options: DeferOption[];
+}
+
+export interface DeferResult {
+  before: { daysToNegative: number | null };
+  after: { daysToNegative: number | null };
+  resolves: boolean;
+  feeAmount: number;
+  newDate: string;
+  newRootCause: { description: string; amount: number; date: string } | null;
+  alternatives: { label: string; note: string }[];
+}
+
+export interface RecurringTransaction {
+  id: string;
+  accountId: string;
+  categoryId: string;
+  description: string;
+  amount: string;
+  type: TransactionType;
+  frequency: "DIARIA" | "SEMANAL" | "MENSAL" | "ANUAL";
+  startDate: string;
+  endDate: string | null;
+  active: boolean;
+}

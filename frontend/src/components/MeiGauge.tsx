@@ -3,9 +3,9 @@ import { MeiStatus } from "@/lib/types";
 import { formatCurrency } from "@/lib/format";
 
 function gaugeColor(status: MeiStatus): string {
-  if (status.overLimit) return "#b3402f";
-  if (status.usagePercent >= 80 || status.projectedOverLimit) return "#c97a1f";
-  return "#1f6f5c";
+  if (status.overLimit) return "#e04a32";
+  if (status.usagePercent >= 80 || status.projectedOverLimit) return "#c97a16";
+  return "#0e7a52";
 }
 
 export function MeiGauge({ status }: { status: MeiStatus }) {

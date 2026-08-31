@@ -356,7 +356,7 @@ button {
 .main-content {
   flex: 1;
   padding: 40px 48px;
-  max-width: 1100px;
+  max-width: 1320px;
   min-width: 0; /* sem isso, filhos com conteúdo largo (tabela, gráfico) esticam
                    o flex item além do espaço disponível em vez de encolher */
 }

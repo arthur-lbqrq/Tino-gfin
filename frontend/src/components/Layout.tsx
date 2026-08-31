@@ -101,7 +101,6 @@ export function Layout() {
         { to: "/compromissos", label: "Compromissos", badge: compromissosCount > 0 ? String(compromissosCount) : undefined },
         { to: "/budgets", label: "Orçamentos" },
         { to: "/goals", label: "Metas" },
-        { to: "/planos", label: "Planos" },
       ],
     },
     {

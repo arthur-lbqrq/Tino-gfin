@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { api, ApiError } from "@/lib/api";
 
+const PLAN_LABEL: Record<string, string> = { FREE: "Free", PRO: "Pro", BUSINESS: "Business" };
+
 export function Settings() {
-  const { user, logout } = useAuth();
+  const { user, plan, logout } = useAuth();
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(false);
   const [password, setPassword] = useState("");
@@ -39,6 +41,18 @@ export function Settings() {
           Leia a <Link to="/privacidade">Política de Privacidade</Link> e os{" "}
           <Link to="/termos">Termos de Uso</Link>.
         </p>
+      </div>
+
+      <div className="card" style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h3 style={{ fontSize: 16, marginBottom: 8 }}>Plano</h3>
+          <p style={{ fontSize: 14 }}>
+            Você está no <strong>{plan ? PLAN_LABEL[plan.plan] ?? plan.plan : "..."}</strong>.
+          </p>
+        </div>
+        <Link to="/planos" className="btn-secondary">
+          {plan?.plan === "FREE" ? "Ver planos" : "Gerenciar plano"}
+        </Link>
       </div>
 
       <div className="card" style={{ borderColor: "var(--signal-red)" }}>

@@ -14,6 +14,7 @@ import {
 } from "@/lib/types";
 import { PageLoader } from "@/components/PageLoader";
 import { CashProjectionChart } from "@/components/CashProjectionChart";
+import { CashflowChart } from "@/components/CashflowChart";
 import { CommitmentsList } from "@/components/CommitmentsList";
 import { DeferModal } from "@/components/DeferModal";
 import { InsightMonitorList } from "@/components/InsightMonitorList";
@@ -281,6 +282,12 @@ export function Dashboard() {
                     </p>
                   </div>
                   <CashProjectionChart series={projection.series} zeroCrossingIndex={projection.zeroCrossingIndex} variant="full" />
+                </div>
+              )}
+
+              {cashflow.length > 1 && (
+                <div className="dash-alert-history">
+                  <CashflowChart data={cashflow} />
                 </div>
               )}
             </div>
